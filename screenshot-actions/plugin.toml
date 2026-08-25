@@ -1,0 +1,106 @@
+# Screenshot Actions — Region capture → menu for Swappy markup or OCR
+#
+# Usage: Press SUPER+SHIFT+S to capture a region, then choose:
+#   - Open in Swappy (markup/annotation)
+#   - Find Text (OCR with inline result panel)
+#
+# Dependencies: slurp, grim, swappy, tesseract, wl-copy, notify-send
+
+id = "gloves/screenshot-actions"
+name = "Screenshot Actions"
+version = "1.0.0"
+plugin_api = 18
+author = "gloves"
+license = "MIT"
+description = "Region screenshot → menu for Swappy markup or OCR"
+tags = ["screenshot", "ocr", "annotate", "utility"]
+dependencies = [
+  "slurp",
+  "grim",
+  "swappy",
+  "tesseract",
+  "wl-copy",
+  "notify-send",
+]
+
+# ── Settings (editable in Settings → Plugins) ──
+
+[[setting]]
+key = "panel-placement"
+type = "select"
+label_key = "settings.panel_placement.label"
+description_key = "settings.panel_placement.description"
+default = "floating"
+options = [
+  { value = "floating", label_key = "settings.panel_placement.options.floating" },
+  { value = "attached", label_key = "settings.panel_placement.options.attached" },
+]
+
+[[setting]]
+key = "panel-along-bar"
+type = "select"
+label_key = "settings.panel_along_bar.label"
+description_key = "settings.panel_along_bar.description"
+default = "centered"
+options = [
+  { value = "centered", label_key = "settings.panel_along_bar.options.centered" },
+  { value = "near-trigger", label_key = "settings.panel_along_bar.options.near_trigger" },
+]
+
+# ── Entries ──
+
+# Main action menu: image preview + 2 buttons (Open / Find Text)
+[[panel]]
+id = "actions"
+entry = "panel.luau"
+width = 480
+height = 320
+keyboard_focus = "on_demand"
+capture_keys = [
+  "Tab",
+  "Backtab",
+  "Up",
+  "Down",
+  "Left",
+  "Right",
+  "Return",
+  "Enter",
+  "Space",
+  "Escape",
+]
+
+# Inline OCR result panel: editable text + copy button
+[[panel]]
+id = "ocr-result"
+entry = "result.luau"
+width = 560
+height = 480
+
+# Screenshot history: thumbnail grid of past captures (wallpaper-switcher layout).
+# Open via IPC: noctalia msg panel-toggle gloves/screenshot-actions:history
+# Selecting a tile opens the actions panel with that screenshot. Arrow keys
+# navigate the grid; going past the last row scrolls the grid one row.
+[[panel]]
+id = "history"
+entry = "history.luau"
+width = 920
+height = 780
+keyboard_focus = "exclusive"
+capture_keys = [
+  "Up",
+  "Down",
+  "Left",
+  "Right",
+  "ctrl+h",
+  "ctrl+j",
+  "ctrl+k",
+  "ctrl+l",
+  "Return",
+  "Enter",
+  "Space",
+]
+
+# Headless capture coordinator
+[[service]]
+id = "service"
+entry = "service.luau"
