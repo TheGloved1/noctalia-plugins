@@ -23,6 +23,7 @@ local cachedOverviewOpen = nil
 local function setOverviewState(isOpen)
 	if cachedOverviewOpen == isOpen then return end
 	cachedOverviewOpen = isOpen
+	noctalia.log(("[activate-linux] setOverviewState isOpen=%s cached=%s"):format(tostring(isOpen), tostring(cachedOverviewOpen)))
 	render()
 end
 
@@ -86,6 +87,7 @@ render = function()
 	local overviewMode = getConfig("overview_mode", "always")
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
 	local isOverview = cachedOverviewOpen
+	noctalia.log(("[activate-linux] render overview_mode=%q isOverview=%s"):format(overviewMode, tostring(isOverview)))
 
 	if overviewMode == "overview_only" and isOverview ~= true then
 		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))

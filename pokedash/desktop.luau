@@ -212,6 +212,7 @@ local render
 local function setOverviewState(isOpen)
 	if cachedOverviewOpen == isOpen then return end
 	cachedOverviewOpen = isOpen
+	noctalia.log(("[pokedash] setOverviewState isOpen=%s cached=%s"):format(tostring(isOpen), tostring(cachedOverviewOpen)))
 	render()
 end
 
@@ -254,6 +255,7 @@ render = function()
 	local overviewMode = getConfig("overview_mode", "always")
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
 	local isOverview = cachedOverviewOpen
+	noctalia.log(("[pokedash] render overview_mode=%q isOverview=%s"):format(overviewMode, tostring(isOverview)))
 
 	-- overview_only: visible only in Niri overview.
 	-- Nil/unknown state: hide until we can confirm overview is open.
