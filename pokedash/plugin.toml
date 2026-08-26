@@ -1,6 +1,6 @@
 id = "gloves/pokedash"
 name = "PokeDash"
-version = "1.2.0"
+version = "1.2.1"
 plugin_api = 22
 author = "gloves"
 license = "MIT"

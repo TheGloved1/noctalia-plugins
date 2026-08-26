@@ -216,17 +216,15 @@ function render()
 
 	local overviewMode = getConfig("overview_mode", "always")
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
-	local isOverview = noctalia.state.get("overview.is_open")
-	-- nil = unknown / non-Niri → fallback to always visible (Niri-only)
-	if overviewMode == "overview_only" and isOverview == false then
-		stopAnimation()
-		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
-		return
-	end
-	if overviewMode == "hidden_in_overview" and isOverview == true then
-		stopAnimation()
-		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
-		return
+	-- Backdrop-only: overview_only always renders, Niri's place-within-backdrop
+	-- makes it visible only in overview (no plugin gating needed).
+	if overviewMode == "hidden_in_overview" then
+		local isOverview = noctalia.state.get("overview.is_open")
+		if isOverview == true then
+			stopAnimation()
+			desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
+			return
+		end
 	end
 
 	local critter = getByName(selected)

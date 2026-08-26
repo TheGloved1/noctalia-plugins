@@ -36,7 +36,7 @@ tags = ["screenshot", "ocr", "annotate", "utility"]
 [[plugin]]
 id = "gloves/activate-linux"
 name = "Activate Linux"
-version = "1.2.0"
+version = "1.2.1"
 updated_at = 1787734203
 added_at = 1787731727
 author = "gloves"
@@ -55,7 +55,7 @@ rev = "5259d7f535b5ddc09e3bd660410e2863f1a16c0d"
 [[plugin]]
 id = "gloves/pokedash"
 name = "PokeDash"
-version = "1.2.0"
+version = "1.2.1"
 updated_at = 1787734203
 added_at = 1787731727
 author = "gloves"
