@@ -1,10 +1,9 @@
 --!nonstrict
--- Overview watcher service for Niri — publishes overview.is_open and
--- toggles the floating Top-layer panel that shows the watermark in
--- the overview, mirroring DMS DesktopPluginWrapper behavior.
+-- Overview watcher service for Niri — opens the floating Top-layer panel
+-- that shows the watermark in the overview.
 --
--- Niri-only: on other compositors, state stays nil and the desktop
--- widget falls back to always visible; no panel is shown.
+-- Uses its own state key (not shared with other plugins) so multiple
+-- plugins can independently track overview state without interference.
 
 noctalia.log("Overview service started (activate-linux)")
 if not noctalia.commandExists("niri") then
@@ -14,14 +13,15 @@ end
 noctalia.log("Overview: niri found, starting watcher")
 
 local PANEL_ID = "gloves/activate-linux:overview-widget"
+local STATE_KEY = "activate-linux.overview.is_open"
 
 function setState(isOpen)
-	noctalia.state.set("overview.is_open", isOpen)
+	noctalia.state.set(STATE_KEY, isOpen)
 	noctalia.log("Overview: is_open=" .. tostring(isOpen))
 	if isOpen then
-		noctalia.runAsync("noctalia msg panel-open gloves/activate-linux:overview-widget 2>/dev/null")
+		noctalia.runAsync("noctalia msg panel-open " .. PANEL_ID .. " 2>/dev/null")
 	else
-		noctalia.runAsync("noctalia msg panel-close gloves/activate-linux:overview-widget 2>/dev/null")
+		noctalia.runAsync("noctalia msg panel-close " .. PANEL_ID .. " 2>/dev/null")
 	end
 end
 
