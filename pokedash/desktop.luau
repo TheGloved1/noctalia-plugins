@@ -7,8 +7,8 @@
 
 local PokeDash = require("./render.luau")
 
-local function doRender()
-	local overviewMode = PokeDash.getConfig("overview_mode", "always")
+local function render()
+	local overviewMode = noctalia.getConfig("overview_mode", "always")
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
 	local isOverview = noctalia.state.get("overview.is_open")
 
@@ -24,11 +24,9 @@ local function doRender()
 	end
 
 	local cfg = PokeDash.computeConfig()
-	PokeDash.ensureSprite(cfg.critter.dexId, cfg.style, doRender)
+	PokeDash.ensureSprite(cfg.critter.dexId, cfg.style, render)
 	desktopWidget.render(PokeDash.renderTree(cfg))
 end
-
-local render = doRender
 
 function onFrameTick(deltaMs)
 	PokeDash.onFrameTick(deltaMs)

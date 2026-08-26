@@ -51,9 +51,10 @@ end
 
 local function loadFrameList(dir)
 	if dir == nil or dir == "" then return {} end
-	if not dir or type(io.popen) ~= "function" then return {} end
 	local frames = {}
-	local handle = io.popen("ls " .. dir .. "/frame_*.png 2>/dev/null")
+	local handle = io.popen
+	if type(handle) ~= "function" then return {} end
+	handle = handle("ls " .. dir .. "/frame_*.png 2>/dev/null")
 	if not handle then return {} end
 	for f in handle:lines() do
 		table.insert(frames, f)
@@ -162,14 +163,16 @@ local function ensureSprite(dexId, style, onDone)
 		return currentGif
 	end
 	currentGif = gif
-	local frames = loadFrameList(dir)
+	local frames = {}
+	if dir ~= nil and dir ~= "" and type(io.popen) == "function" then
+		frames = loadFrameList(dir)
+	end
 	if #frames > 0 then
 		framePaths = frames
 		startAnimation()
 	else
 		framePaths = {}
 		stopAnimation()
-		triggerExtraction(gif, dir, onDone)
 	end
 	return gif
 end
@@ -278,6 +281,7 @@ local function renderTree(cfg)
 end
 
 return {
+	getConfig = getConfig,
 	ensureSprite = ensureSprite,
 	computeConfig = computeConfig,
 	renderTree = renderTree,

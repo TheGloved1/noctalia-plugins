@@ -93,6 +93,6 @@ entry = "overview.luau"
 [[panel]]
 id = "overview-widget"
 entry = "panel.luau"
-width = 200
-height = 80
+width = 400
+height = 120
 placement = "floating"
