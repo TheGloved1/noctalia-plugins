@@ -46,18 +46,18 @@ local function render()
 
 	local overviewMode = getConfig("overview_mode", "always")
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
-	-- For backdrop placement (Niri layer-rule place-within-backdrop), overview_only
-	-- should always render and let Niri's backdrop visibility do the hiding.
-	-- Only hidden_in_overview needs plugin gating.
-	if overviewMode == "hidden_in_overview" then
-		local isOverview = noctalia.state.get("overview.is_open")
-		if isOverview == true then
-			desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
-			return
-		end
+	local isOverview = noctalia.state.get("overview.is_open")
+	-- overview_only: visible only in Niri overview (inside backdrop)
+	-- We gate here *and* rely on Niri place-within-backdrop for correct layering
+	if overviewMode == "overview_only" and isOverview == false then
+		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
+		return
 	end
-	-- overview_only with backdrop: always render, Niri shows only in overview
-	-- (previous gating rendered empty when not overview, now rely on backdrop)
+	if overviewMode == "hidden_in_overview" and isOverview == true then
+		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
+		return
+	end
+	-- nil (non-Niri) -> fallback to always visible
 
 	-- Use palette role with reduced alpha via opacity prop per-label.
 	-- Group opacity fades children uniformly, matching DMS Theme.surfaceVariantText at 40%.
