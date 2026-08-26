@@ -35,10 +35,10 @@ local function render()
 	local alignSetting = getConfig("text_align", "right")
 	if type(alignSetting) ~= "string" then alignSetting = "right" end
 	local columnAlign = "end"
-	local textAlign = "right"
+	local textAlign = "end"
 	if alignSetting == "left" then
 		columnAlign = "start"
-		textAlign = "left"
+		textAlign = "start"
 	elseif alignSetting == "center" then
 		columnAlign = "center"
 		textAlign = "center"
