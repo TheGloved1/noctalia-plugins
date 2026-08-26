@@ -250,6 +250,10 @@ local function renderTree(cfg)
 	return inner
 end
 
+local function stopAnimation()
+	animating = false
+end
+
 local function hasAnimatedFrames()
 	return #framePaths > 1
 end
@@ -260,5 +264,6 @@ return {
 	computeConfig = computeConfig,
 	renderTree = renderTree,
 	onFrameTick = onFrameTick,
+	stopAnimation = stopAnimation,
 	hasAnimatedFrames = hasAnimatedFrames,
 }
