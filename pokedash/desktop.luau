@@ -255,7 +255,6 @@ render = function()
 	local overviewMode = getConfig("overview_mode", "always")
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
 	local isOverview = cachedOverviewOpen
-	noctalia.log(("[pokedash] render overview_mode=%q isOverview=%s"):format(overviewMode, tostring(isOverview)))
 
 	-- overview_only: visible only in Niri overview.
 	-- Nil/unknown state: hide until we can confirm overview is open.
@@ -330,6 +329,9 @@ end
 function onFrameTick(deltaMs)
 	if #framePaths <= 1 then
 		stopAnimation()
+		return
+	end
+	if cachedOverviewOpen ~= true then
 		return
 	end
 	accumMs = accumMs + deltaMs
