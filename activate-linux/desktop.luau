@@ -13,8 +13,11 @@ local function getConfig(key, fallback)
 	return v
 end
 
--- Direct Niri overview state tracking (bypasses noctalia.state which doesn't
--- propagate between services and widgets in the current runtime).
+-- Forward-declare render so setOverviewState/stream callbacks can call it
+-- even though the full definition appears later in the file.
+local render
+
+-- Direct Niri overview state tracking (mirrors DMS DesktopPluginWrapper).
 local cachedOverviewOpen = nil
 
 local function setOverviewState(isOpen)
@@ -48,13 +51,13 @@ end
 
 queryOverviewState()
 
-local function render()
+-- Actual render implementation (assigned after all locals exist).
+render = function()
 	local customize = getConfig("customize_text", false) == true
 
 	local firstLine = customize and getConfig("first_line", "Activate Linux") or "Activate Linux"
 	local secondLine = customize and getConfig("second_line", "Go to Settings to activate Linux.") or "Go to Settings to activate Linux."
 
-	-- Ensure non-empty fallback (visible_when hides inputs but stored value may be empty)
 	if firstLine == nil or firstLine == "" then firstLine = "Activate Linux" end
 	if secondLine == nil or secondLine == "" then secondLine = "Go to Settings to activate Linux." end
 
@@ -84,8 +87,6 @@ local function render()
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
 	local isOverview = cachedOverviewOpen
 
-	-- overview_only: visible only in Niri overview.
-	-- Nil/unknown state: hide until we can confirm overview is open.
 	if overviewMode == "overview_only" and isOverview ~= true then
 		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
 		return
@@ -95,8 +96,6 @@ local function render()
 		return
 	end
 
-	-- Use palette role with reduced alpha via opacity prop per-label.
-	-- Group opacity fades children uniformly, matching DMS Theme.surfaceVariantText at 40%.
 	desktopWidget.render(ui.column({ gap = 2, align = columnAlign }, {
 		ui.label({
 			text = firstLine,

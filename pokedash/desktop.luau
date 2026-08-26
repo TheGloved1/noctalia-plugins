@@ -206,6 +206,9 @@ end
 -- Direct Niri overview state tracking (mirrors DMS NiriService.inOverview)
 local cachedOverviewOpen = nil
 
+-- Forward-declare render so setOverviewState can call it unconditionally.
+local render
+
 local function setOverviewState(isOpen)
 	if cachedOverviewOpen == isOpen then return end
 	cachedOverviewOpen = isOpen
@@ -237,7 +240,7 @@ end
 
 queryOverviewState()
 
-function render()
+render = function()
 	local selected = getConfig("selected_critter", "Pikachu")
 	if type(selected) ~= "string" or selected == "" then selected = "Pikachu" end
 	local style = getConfig("sprite_style", "normal")
