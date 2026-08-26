@@ -13,19 +13,20 @@ local function render()
 	local isOverview = noctalia.state.get("overview.is_open")
 
 	if overviewMode == "overview_only" and isOverview ~= true then
-		PokeDash.stopAnimation()
+		desktopWidget.setNeedsFrameTick(false)
 		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
 		return
 	end
 	if overviewMode == "hidden_in_overview" and isOverview == true then
-		PokeDash.stopAnimation()
+		desktopWidget.setNeedsFrameTick(false)
 		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
 		return
 	end
 
 	local cfg = PokeDash.computeConfig()
-	PokeDash.ensureSprite(cfg.critter.dexId, cfg.style, render)
+	PokeDash.ensureSprite(cfg.critter.dexId, cfg.style)
 	desktopWidget.render(PokeDash.renderTree(cfg))
+	desktopWidget.setNeedsFrameTick(PokeDash.hasAnimatedFrames())
 end
 
 function onFrameTick(deltaMs)
@@ -34,7 +35,7 @@ function onFrameTick(deltaMs)
 end
 
 function onConfigChanged()
-	PokeDash.stopAnimation()
+	desktopWidget.setNeedsFrameTick(false)
 	render()
 end
 

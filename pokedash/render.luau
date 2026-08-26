@@ -2,9 +2,11 @@
 -- Shared rendering helpers for PokeDash (desktop widget + overview panel).
 --
 -- Sprite download, extraction and animation state live here so that
--- desktop.luau and panel.luau share one module instance. Each caller
--- must call startAnimation() / stopAnimation() itself, and call its own
--- render() from a global onFrameTick that the runtime invokes.
+-- desktop.luau and panel.luau share one module instance.
+--
+-- NOTE: needsFrameTick is a widget-context API only. This module does NOT
+-- call it. The desktop widget calls setNeedsFrameTick itself; the panel
+-- drives its own render loop via onFrameTick registered there.
 
 local rosterMod = nil
 do
@@ -51,11 +53,10 @@ end
 
 local function loadFrameList(dir)
 	if dir == nil or dir == "" then return {} end
-	local frames = {}
-	local handle = io.popen
-	if type(handle) ~= "function" then return {} end
-	handle = handle("ls " .. dir .. "/frame_*.png 2>/dev/null")
+	if type(io.popen) ~= "function" then return {} end
+	local handle = io.popen("ls " .. dir .. "/frame_*.png 2>/dev/null")
 	if not handle then return {} end
+	local frames = {}
 	for f in handle:lines() do
 		table.insert(frames, f)
 	end
@@ -70,12 +71,6 @@ local function triggerExtraction(gif, dir, onDone)
 		return
 	end
 	noctalia.mkdirAll(dir)
-	local called = false
-	local function callDone()
-		if called then return end
-		called = true
-		if onDone then onDone() end
-	end
 	local ok, py = pcall(function()
 		return ([[
 import sys
@@ -98,7 +93,7 @@ print(n)
 	end)
 	if not ok then
 		extracting = false
-		callDone()
+		if onDone then onDone() end
 		return
 	end
 	local pyCmd = "python3 -c " .. py
@@ -108,7 +103,6 @@ print(n)
 			framePaths = loadFrameList(dir)
 			if #framePaths > 0 then
 				frameDurationMs = 80
-				startAnimation()
 			end
 		else
 			local ffCmd = "ffmpeg -y -i " .. shellQuote(gif) .. " -vsync 0 " .. shellQuote(dir .. "/frame_%03d.png") .. " >/dev/null 2>&1"
@@ -117,14 +111,13 @@ print(n)
 					framePaths = loadFrameList(dir)
 					if #framePaths > 0 then
 						frameDurationMs = 80
-						startAnimation()
 					end
 				end
-				callDone()
+				if onDone then onDone() end
 			end)
 			return
 		end
-		callDone()
+		if onDone then onDone() end
 	end)
 end
 
@@ -148,7 +141,6 @@ local function ensureSprite(dexId, style, onDone)
 				currentGif = gif
 				framePaths = {}
 				frameIndex = 1
-				stopAnimation()
 				triggerExtraction(gif, dir, onDone)
 			else
 				noctalia.log("PokeDash: download failed " .. url)
@@ -163,21 +155,16 @@ local function ensureSprite(dexId, style, onDone)
 		return currentGif
 	end
 	currentGif = gif
-	local frames = {}
-	if dir ~= nil and dir ~= "" and type(io.popen) == "function" then
-		frames = loadFrameList(dir)
-	end
+	local frames = loadFrameList(dir)
 	if #frames > 0 then
 		framePaths = frames
-		startAnimation()
 	else
 		framePaths = {}
-		stopAnimation()
 	end
 	return gif
 end
 
--- Shared state (one copy per require-session, shared between desktop + panel)
+-- Shared state
 local currentGif = nil
 local downloading = nil
 local frameDir = nil
@@ -186,26 +173,9 @@ local frameIndex = 1
 local accumMs = 0
 local frameDurationMs = 80
 local extracting = false
-local animating = false
 
-local function startAnimation()
-	animating = true
-	needsFrameTick(true)
-end
-
-local function stopAnimation()
-	animating = false
-	needsFrameTick(false)
-end
-
--- onFrameTick: updates frame state; caller must call its render() after
--- this returns (called by runtime as a global-ish callback from whichever
--- surface last called needsFrameTick(true)).
 function onFrameTick(deltaMs)
-	if #framePaths <= 1 then
-		stopAnimation()
-		return
-	end
+	if #framePaths <= 1 then return end
 	accumMs = accumMs + deltaMs
 	while accumMs >= frameDurationMs do
 		accumMs = accumMs - frameDurationMs
@@ -280,12 +250,15 @@ local function renderTree(cfg)
 	return inner
 end
 
+local function hasAnimatedFrames()
+	return #framePaths > 1
+end
+
 return {
 	getConfig = getConfig,
 	ensureSprite = ensureSprite,
 	computeConfig = computeConfig,
 	renderTree = renderTree,
-	startAnimation = startAnimation,
-	stopAnimation = stopAnimation,
 	onFrameTick = onFrameTick,
+	hasAnimatedFrames = hasAnimatedFrames,
 }
