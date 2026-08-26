@@ -1,6 +1,6 @@
 id = "gloves/pokedash"
 name = "PokeDash"
-version = "1.2.1"
+version = "1.1.0"
 plugin_api = 22
 author = "gloves"
 license = "MIT"
@@ -98,26 +98,3 @@ entry = "desktop.luau"
   default = 100
   min = 50
   max = 250
-
-  [[desktop_widget.setting]]
-  key = "overview_mode"
-  type = "select"
-  label_key = "settings.overview_mode.label"
-  description_key = "settings.overview_mode.description"
-  default = "always"
-  options = [
-    { value = "always", label_key = "settings.overview_mode.options.always" },
-    { value = "overview_only", label_key = "settings.overview_mode.options.overview_only" },
-    { value = "hidden_in_overview", label_key = "settings.overview_mode.options.hidden_in_overview" }
-  ]
-
-[[service]]
-id = "overview"
-entry = "overview.luau"
-
-[[panel]]
-id = "overview-widget"
-entry = "panel.luau"
-width = 120
-height = 120
-placement = "floating"

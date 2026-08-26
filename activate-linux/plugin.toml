@@ -1,7 +1,7 @@
 id = "gloves/activate-linux"
 name = "Activate Linux"
-version = "1.2.1"
-plugin_api = 22
+version = "1.1.0"
+plugin_api = 18
 author = "gloves"
 license = "MIT"
 description = "Windows-style Activate Linux watermark for the desktop"
@@ -73,26 +73,3 @@ entry = "desktop.luau"
     { value = "center", label_key = "settings.text_align.options.center" },
     { value = "right", label_key = "settings.text_align.options.right" }
   ]
-
-  [[desktop_widget.setting]]
-  key = "overview_mode"
-  type = "select"
-  label_key = "settings.overview_mode.label"
-  description_key = "settings.overview_mode.description"
-  default = "always"
-  options = [
-    { value = "always", label_key = "settings.overview_mode.options.always" },
-    { value = "overview_only", label_key = "settings.overview_mode.options.overview_only" },
-    { value = "hidden_in_overview", label_key = "settings.overview_mode.options.hidden_in_overview" }
-  ]
-
-[[service]]
-id = "overview"
-entry = "overview.luau"
-
-[[panel]]
-id = "overview-widget"
-entry = "panel.luau"
-width = 400
-height = 120
-placement = "floating"
