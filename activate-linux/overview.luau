@@ -9,6 +9,7 @@ end
 
 local function setState(isOpen)
 	noctalia.state.set("overview.is_open", isOpen)
+	noctalia.log("Overview: is_open=" .. tostring(isOpen))
 end
 
 -- Initial state
