@@ -2,15 +2,51 @@
 -- Activate Linux — desktop watermark
 -- Port of hthienloc/dms-activate-linux (QML) to Noctalia desktop_widget.
 --
--- Renders two lines bottom-right aligned via the host's desktop widget
--- placement (drag to corner in edit mode). Opacity and font sizes are
--- configurable; text can be customized or fall back to the classic strings.
+-- Mirrors DMS DesktopPluginWrapper behavior: tracks Niri overview state
+-- directly (via event-stream) and gates visibility for overview_only /
+-- hidden_in_overview. Falls back to always-visible on non-Niri or if the
+-- compositor state can't be determined.
 
 local function getConfig(key, fallback)
 	local v = noctalia.getConfig(key)
 	if v == nil then return fallback end
 	return v
 end
+
+-- Direct Niri overview state tracking (bypasses noctalia.state which doesn't
+-- propagate between services and widgets in the current runtime).
+local cachedOverviewOpen = nil
+
+local function setOverviewState(isOpen)
+	if cachedOverviewOpen == isOpen then return end
+	cachedOverviewOpen = isOpen
+	render()
+end
+
+local function queryOverviewState()
+	noctalia.runAsync("niri msg -j overview-state 2>/dev/null", function(res)
+		if res and res.exitCode == 0 and res.stdout then
+			local isOpen = res.stdout:find('"is_open"%s*:%s*true') ~= nil
+			setOverviewState(isOpen)
+		end
+	end)
+end
+
+local streamOk = noctalia.runStream("niri msg -j event-stream 2>/dev/null", function(line)
+	if line:find("OverviewOpenedOrClosed") then
+		local isOpen = line:find('"is_open"%s*:%s*true') ~= nil
+		setOverviewState(isOpen)
+	end
+end)
+
+if not streamOk then
+	noctalia.setUpdateInterval(500)
+	function update()
+		queryOverviewState()
+	end
+end
+
+queryOverviewState()
 
 local function render()
 	local customize = getConfig("customize_text", false) == true
@@ -46,9 +82,10 @@ local function render()
 
 	local overviewMode = getConfig("overview_mode", "always")
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
-	local isOverview = noctalia.state.get("overview.is_open")
-	-- overview_only: visible only in Niri overview (inside backdrop)
-	-- Treat nil as closed: layer-shell surfaces don't hide via place-within-backdrop alone.
+	local isOverview = cachedOverviewOpen
+
+	-- overview_only: visible only in Niri overview.
+	-- Nil/unknown state: hide until we can confirm overview is open.
 	if overviewMode == "overview_only" and isOverview ~= true then
 		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
 		return
@@ -57,8 +94,6 @@ local function render()
 		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
 		return
 	end
-	-- nil (non-Niri) -> fallback to always visible
-	print(("[activate-linux] overview_mode=%q isOverview=%s rendering=yes"):format(overviewMode, tostring(isOverview)))
 
 	-- Use palette role with reduced alpha via opacity prop per-label.
 	-- Group opacity fades children uniformly, matching DMS Theme.surfaceVariantText at 40%.
@@ -84,7 +119,5 @@ end
 function onConfigChanged()
 	render()
 end
-
-noctalia.state.watch("overview.is_open", function() render() end)
 
 render()

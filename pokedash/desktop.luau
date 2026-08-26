@@ -203,6 +203,40 @@ local function ensureSprite(dexId, style)
 	return gif
 end
 
+-- Direct Niri overview state tracking (mirrors DMS NiriService.inOverview)
+local cachedOverviewOpen = nil
+
+local function setOverviewState(isOpen)
+	if cachedOverviewOpen == isOpen then return end
+	cachedOverviewOpen = isOpen
+	render()
+end
+
+local function queryOverviewState()
+	noctalia.runAsync("niri msg -j overview-state 2>/dev/null", function(res)
+		if res and res.exitCode == 0 and res.stdout then
+			local isOpen = res.stdout:find('"is_open"%s*:%s*true') ~= nil
+			setOverviewState(isOpen)
+		end
+	end)
+end
+
+local streamOk = noctalia.runStream("niri msg -j event-stream 2>/dev/null", function(line)
+	if line:find("OverviewOpenedOrClosed") then
+		local isOpen = line:find('"is_open"%s*:%s*true') ~= nil
+		setOverviewState(isOpen)
+	end
+end)
+
+if not streamOk then
+	noctalia.setUpdateInterval(500)
+	function update()
+		queryOverviewState()
+	end
+end
+
+queryOverviewState()
+
 function render()
 	local selected = getConfig("selected_critter", "Pikachu")
 	if type(selected) ~= "string" or selected == "" then selected = "Pikachu" end
@@ -216,7 +250,10 @@ function render()
 
 	local overviewMode = getConfig("overview_mode", "always")
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
-	local isOverview = noctalia.state.get("overview.is_open")
+	local isOverview = cachedOverviewOpen
+
+	-- overview_only: visible only in Niri overview.
+	-- Nil/unknown state: hide until we can confirm overview is open.
 	if overviewMode == "overview_only" and isOverview ~= true then
 		stopAnimation()
 		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
@@ -284,8 +321,6 @@ function onConfigChanged()
 	stopAnimation()
 	render()
 end
-
-noctalia.state.watch("overview.is_open", function() render() end)
 
 function onFrameTick(deltaMs)
 	if #framePaths <= 1 then
