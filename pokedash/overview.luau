@@ -2,10 +2,12 @@
 -- Overview watcher service for Niri — publishes overview.is_open
 -- Niri-only: on other compositors, state stays nil and widgets fallback to always visible.
 
+noctalia.log("Overview service started (pokedash)")
 if not noctalia.commandExists("niri") then
 	noctalia.log("Overview: niri not found, overview_only disabled (fallback to always)")
 	return
 end
+noctalia.log("Overview: niri found, starting watcher")
 
 local function setState(isOpen)
 	noctalia.state.set("overview.is_open", isOpen)
