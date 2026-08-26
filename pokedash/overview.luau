@@ -15,26 +15,12 @@ noctalia.log("Overview: niri found, starting watcher")
 
 local PANEL_ID = "gloves/pokedash:overview-widget"
 
-local function setState(isOpen)
+function setState(isOpen)
 	noctalia.state.set("overview.is_open", isOpen)
 	noctalia.log("Overview: is_open=" .. tostring(isOpen))
-	if isOpen then
-		noctalia.togglePanel(PANEL_ID)
-	end
+	noctalia.togglePanel(PANEL_ID)
 end
 
--- Initial state (runs once, sets state before panel.luau self-gates)
-noctalia.runAsync("niri msg -j overview-state 2>/dev/null", function(res)
-	if res and res.exitCode == 0 and res.stdout then
-		if res.stdout:find('"is_open"%s*:%s*true') then
-			setState(true)
-		elseif res.stdout:find('"is_open"%s*:%s*false') then
-			setState(false)
-		end
-	end
-end)
-
--- Stream overview events
 local ok = noctalia.runStream("niri msg -j event-stream 2>/dev/null", function(line)
 	if line:find("OverviewOpenedOrClosed") then
 		if line:find('"is_open"%s*:%s*true') then
