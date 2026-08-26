@@ -51,10 +51,14 @@ end
 
 local function loadFrameList(dir)
 	if dir == nil or dir == "" then return {} end
+	if not dir or type(io.popen) ~= "function" then return {} end
 	local frames = {}
-	for f in io.popen("ls " .. dir .. "/frame_*.png 2>/dev/null"):lines() do
+	local handle = io.popen("ls " .. dir .. "/frame_*.png 2>/dev/null")
+	if not handle then return {} end
+	for f in handle:lines() do
 		table.insert(frames, f)
 	end
+	handle:close()
 	table.sort(frames)
 	return frames
 end
