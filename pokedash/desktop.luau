@@ -194,10 +194,12 @@ local function ensureSprite(dexId, style)
 	local frames = loadFrameList(dir)
 	if #frames > 0 then
 		framePaths = frames
+		noctalia.log("PokeDash: found " .. #frames .. " frames for " .. tostring(dexId) .. "-" .. style)
 		startAnimation()
 	else
 		framePaths = {}
 		stopAnimation()
+		noctalia.log("PokeDash: no frames yet for " .. tostring(dexId) .. "-" .. style .. ", extracting")
 		triggerExtraction(gif, dir)
 	end
 	return gif
