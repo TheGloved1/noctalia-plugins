@@ -18,7 +18,11 @@ local PANEL_ID = "gloves/activate-linux:overview-widget"
 function setState(isOpen)
 	noctalia.state.set("overview.is_open", isOpen)
 	noctalia.log("Overview: is_open=" .. tostring(isOpen))
-	noctalia.togglePanel(PANEL_ID)
+	if isOpen then
+		noctalia.runAsync("noctalia msg panel-open gloves/activate-linux:overview-widget 2>/dev/null")
+	else
+		noctalia.runAsync("noctalia msg panel-close gloves/activate-linux:overview-widget 2>/dev/null")
+	end
 end
 
 local ok = noctalia.runStream("niri msg -j event-stream 2>/dev/null", function(line)

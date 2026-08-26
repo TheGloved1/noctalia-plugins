@@ -69,3 +69,5 @@ function onIpc(event, _payload)
 		panel.close()
 	end
 end
+
+-- Service handles panel open/close explicitly via noctalia msg panel-open / panel-close
