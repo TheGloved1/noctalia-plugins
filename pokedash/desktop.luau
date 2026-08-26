@@ -194,12 +194,10 @@ local function ensureSprite(dexId, style)
 	local frames = loadFrameList(dir)
 	if #frames > 0 then
 		framePaths = frames
-		noctalia.log("PokeDash: found " .. #frames .. " frames for " .. tostring(dexId) .. "-" .. style)
 		startAnimation()
 	else
 		framePaths = {}
 		stopAnimation()
-		noctalia.log("PokeDash: no frames yet for " .. tostring(dexId) .. "-" .. style .. ", extracting")
 		triggerExtraction(gif, dir)
 	end
 	return gif
@@ -215,6 +213,21 @@ function render()
 	local scale = getConfig("sprite_scale", 100)
 	if type(scale) ~= "number" then scale = 100 end
 	scale = math.clamp(scale, 50, 250) / 100
+
+	local overviewMode = getConfig("overview_mode", "always")
+	if type(overviewMode) ~= "string" then overviewMode = "always" end
+	local isOverview = noctalia.state.get("overview.is_open")
+	-- nil = unknown / non-Niri → fallback to always visible (Niri-only)
+	if overviewMode == "overview_only" and isOverview == false then
+		stopAnimation()
+		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
+		return
+	end
+	if overviewMode == "hidden_in_overview" and isOverview == true then
+		stopAnimation()
+		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
+		return
+	end
 
 	local critter = getByName(selected)
 	-- Ensure gif/frames are being prepared (async, may re-render)
@@ -271,6 +284,8 @@ function onConfigChanged()
 	stopAnimation()
 	render()
 end
+
+noctalia.state.watch("overview.is_open", function() render() end)
 
 function onFrameTick(deltaMs)
 	if #framePaths <= 1 then

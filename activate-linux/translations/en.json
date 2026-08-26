@@ -32,6 +32,15 @@
         "center": "Center",
         "right": "Right"
       }
+    },
+    "overview_mode": {
+      "label": "Overview Visibility",
+      "description": "When to show the watermark (Niri-only; fallback to always on other compositors). Requires Niri layer-rule for true backdrop placement.",
+      "options": {
+        "always": "Always",
+        "overview_only": "Overview only (inside backdrop)",
+        "hidden_in_overview": "Hidden in overview"
+      }
     }
   }
 }

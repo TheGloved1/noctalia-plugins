@@ -7,8 +7,8 @@ Windows-style “Activate Linux” watermark for Noctalia desktop — port of [h
 | Field | Value |
 |---|---|
 | ID | `gloves/activate-linux` |
-| Entry | `[[desktop_widget]] watermark` → `desktop.luau` |
-| API | `18` |
+| Entry | `[[desktop_widget]] watermark` → `desktop.luau` + `[[service]] overview` |
+| API | `22` |
 
 ## What it does
 
@@ -26,8 +26,26 @@ All settings live in **Settings → Plugins** (gear on the plugin row) or per-wi
 | `customize_text` | `bool` | `false` | Enable manual text override |
 | `first_line` | `string` | `Activate Linux` | Custom first line (visible when customize_text=true) |
 | `second_line` | `string` | `Go to Settings...` | Custom second line (visible when customize_text=true) |
+| `text_align` | `select left|center|right` | `right` | Horizontal alignment |
+| `overview_mode` | `select always|overview_only|hidden_in_overview` | `always` | When to show (Niri-only; `overview_only` needs backdrop rule below) |
 
 Colors follow the active palette via `on_surface_variant`; opacity is applied per-label (not a translucent background, so text stays crisp).
+
+## Niri Overview (inside backdrop)
+
+To make the watermark appear **inside** Niri's overview (not just on the desktop when overview is open), add a Niri `layer-rule` so the widget is composited into the overview backdrop:
+
+```kdl
+// in ~/.config/niri/config.kdl or ~/.config/niri/noctalia.kdl
+layer-rule {
+    match namespace="^noctalia-desktop-widget-activate-linux-"
+    place-within-backdrop true
+}
+```
+
+Then set **Overview Visibility → Overview only** in Settings → Plugins. The widget uses a `[[service]]` that watches `niri msg -j event-stream` (`OverviewOpenedOrClosed`) via `noctalia.state`; on non-Niri it falls back to `always` visible. Without the layer-rule it will still hide/show on the desktop (DMS parity) but not be inside the overview workspace previews.
+
+Check namespaces with `niri msg layers | grep desktop-widget`.
 
 ## Differences from DMS version
 

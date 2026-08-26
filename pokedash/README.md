@@ -7,8 +7,8 @@ Your favourite Pokemon roaming your desktop — port of [samgrande/PokeDash](htt
 | Field | Value |
 |---|---|
 | ID | `gloves/pokedash` |
-| Entry | `[[desktop_widget]] display` → `desktop.luau` |
-| API | `18` |
+| Entry | `[[desktop_widget]] display` → `desktop.luau` + `[[service]] overview` |
+| API | `22` |
 | Module | `roster.luau` (ported from `PokeDashGenerator.js`) |
 
 ## What it does
@@ -25,8 +25,22 @@ Remote GIFs are downloaded from PokeAPI (`raw.githubusercontent.com/PokeAPI/spri
 | `sprite_style` | `select normal|showdown` | `normal` | Sprite set |
 | `background_style` | `select transparent|dms|glass` | `transparent` | Background behind sprite |
 | `sprite_scale` | `int 50-250` | `100` | Sprite size % |
+| `overview_mode` | `select always|overview_only|hidden_in_overview` | `always` | When to show (Niri-only; `overview_only` needs backdrop rule below) |
 
-All live in **Settings → Plugins** per-widget.
+All live in **Settings → Plugins** per-widget. Animated GIFs are extracted to `pluginDataDir/sprites/*_frames/` via PIL/ffmpeg and animated via `setNeedsFrameTick` at ~12fps.
+
+## Niri Overview (inside backdrop)
+
+Same as `activate-linux` — add:
+
+```kdl
+layer-rule {
+    match namespace="^noctalia-desktop-widget-pokedash-"
+    place-within-backdrop true
+}
+```
+
+Or one rule for both: `^noctalia-desktop-widget-(activate-linux|pokedash)-`. Then set **Overview only**. Without it, `overview_only` just hides on desktop when not in overview (DMS parity).
 
 ## DMS parity
 
@@ -37,8 +51,7 @@ All live in **Settings → Plugins** per-widget.
 
 ## Limitations
 
-- `ui.image` loads local files only — network fetch is required.
-- Animated GIF looping relies on Noctalia sticker/desktop image support for GIF.
+- `ui.image` is static — animated GIFs are handled by extracting PNG frames (requires `python3` + PIL or `ffmpeg`).
 - No click/interaction yet (DMS left-click opened settings — Noctalia settings via widget inspector).
 
 ## Development

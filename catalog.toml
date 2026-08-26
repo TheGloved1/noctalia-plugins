@@ -36,20 +36,26 @@ tags = ["screenshot", "ocr", "annotate", "utility"]
 [[plugin]]
 id = "gloves/activate-linux"
 name = "Activate Linux"
-version = "1.1.0"
+version = "1.2.0"
 updated_at = 1787732285
 added_at = 1787731727
 author = "gloves"
 license = "MIT"
 icon = "info"
 description = "Windows-style Activate Linux watermark for the desktop"
-plugin_api = 18
+plugin_api = 22
 tags = ["desktop", "watermark", "utility"]
+
+[[plugin.release]]
+plugin_api = 18
+version = "1.1.0"
+updated_at = 1787732285
+rev = "5259d7f535b5ddc09e3bd660410e2863f1a16c0d"
 
 [[plugin]]
 id = "gloves/pokedash"
 name = "PokeDash"
-version = "1.1.0"
+version = "1.2.0"
 updated_at = 1787732712
 added_at = 1787731727
 author = "gloves"

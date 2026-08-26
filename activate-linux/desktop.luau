@@ -43,7 +43,20 @@ local function render()
 		columnAlign = "center"
 		textAlign = "center"
 	end
-	noctalia.log("ActivateLinux: alignSetting=" .. tostring(alignSetting) .. " -> columnAlign=" .. columnAlign .. " textAlign=" .. textAlign)
+
+	local overviewMode = getConfig("overview_mode", "always")
+	if type(overviewMode) ~= "string" then overviewMode = "always" end
+	local isOverview = noctalia.state.get("overview.is_open")
+	-- nil = unknown / non-Niri → fallback to always visible
+	if overviewMode == "overview_only" and isOverview == false then
+		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
+		return
+	end
+	if overviewMode == "hidden_in_overview" and isOverview == true then
+		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
+		return
+	end
+	-- when isOverview is nil (non-Niri or not yet known), treat as always visible
 
 	-- Use palette role with reduced alpha via opacity prop per-label.
 	-- Group opacity fades children uniformly, matching DMS Theme.surfaceVariantText at 40%.
@@ -69,5 +82,7 @@ end
 function onConfigChanged()
 	render()
 end
+
+noctalia.state.watch("overview.is_open", function() render() end)
 
 render()
