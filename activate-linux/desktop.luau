@@ -43,6 +43,7 @@ local function render()
 		columnAlign = "center"
 		textAlign = "center"
 	end
+	noctalia.log("ActivateLinux: alignSetting=" .. tostring(alignSetting) .. " -> columnAlign=" .. columnAlign .. " textAlign=" .. textAlign)
 
 	-- Use palette role with reduced alpha via opacity prop per-label.
 	-- Group opacity fades children uniformly, matching DMS Theme.surfaceVariantText at 40%.
