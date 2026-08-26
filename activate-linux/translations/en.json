@@ -23,6 +23,15 @@
     "second_line": {
       "label": "Second Line",
       "description": "Custom text for the second watermark line"
+    },
+    "text_align": {
+      "label": "Text Alignment",
+      "description": "Horizontal alignment of the watermark text",
+      "options": {
+        "left": "Left",
+        "center": "Center",
+        "right": "Right"
+      }
     }
   }
 }

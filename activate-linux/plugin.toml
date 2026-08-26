@@ -1,6 +1,6 @@
 id = "gloves/activate-linux"
 name = "Activate Linux"
-version = "1.0.0"
+version = "1.1.0"
 plugin_api = 18
 author = "gloves"
 license = "MIT"
@@ -61,3 +61,15 @@ entry = "desktop.luau"
   description_key = "settings.second_line.description"
   default = "Go to Settings to activate Linux."
   visible_when = { key = "customize_text", values = ["true"] }
+
+  [[desktop_widget.setting]]
+  key = "text_align"
+  type = "select"
+  label_key = "settings.text_align.label"
+  description_key = "settings.text_align.description"
+  default = "right"
+  options = [
+    { value = "left", label_key = "settings.text_align.options.left" },
+    { value = "center", label_key = "settings.text_align.options.center" },
+    { value = "right", label_key = "settings.text_align.options.right" }
+  ]

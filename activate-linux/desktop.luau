@@ -32,21 +32,35 @@ local function render()
 	local secondSize = getConfig("second_line_size", 14)
 	if type(secondSize) ~= "number" then secondSize = 14 end
 
+	local alignSetting = getConfig("text_align", "right")
+	if type(alignSetting) ~= "string" then alignSetting = "right" end
+	local columnAlign = "end"
+	local textAlign = "right"
+	if alignSetting == "left" then
+		columnAlign = "start"
+		textAlign = "left"
+	elseif alignSetting == "center" then
+		columnAlign = "center"
+		textAlign = "center"
+	end
+
 	-- Use palette role with reduced alpha via opacity prop per-label.
 	-- Group opacity fades children uniformly, matching DMS Theme.surfaceVariantText at 40%.
-	desktopWidget.render(ui.column({ gap = 2, align = "end" }, {
+	desktopWidget.render(ui.column({ gap = 2, align = columnAlign }, {
 		ui.label({
 			text = firstLine,
 			fontSize = firstSize,
 			fontWeight = "light",
 			color = "on_surface_variant",
 			opacity = opacity,
+			textAlign = textAlign,
 		}),
 		ui.label({
 			text = secondLine,
 			fontSize = secondSize,
 			color = "on_surface_variant",
 			opacity = opacity,
+			textAlign = textAlign,
 		}),
 	}))
 end
