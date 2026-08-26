@@ -53,16 +53,15 @@ end
 
 local function loadFrameList(dir)
 	if dir == nil or dir == "" then return {} end
-	local popen = type(io.popen) == "function" and io.popen or nil
-	if popen == nil then return {} end
-	local ok, handle = pcall(popen, "ls " .. dir .. "/frame_*.png 2>/dev/null")
-	if not ok or handle == nil then return {} end
 	local frames = {}
-	for f in handle:lines() do
-		table.insert(frames, f)
+	for i = 0, 99 do
+		local path = dir .. "/frame_" .. string.format("%03d", i) .. ".png"
+		if noctalia.fileExists(path) then
+			table.insert(frames, path)
+		elseif i > 0 then
+			break
+		end
 	end
-	handle:close()
-	table.sort(frames)
 	return frames
 end
 
