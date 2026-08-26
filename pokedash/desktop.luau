@@ -217,7 +217,7 @@ function render()
 	local overviewMode = getConfig("overview_mode", "always")
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
 	local isOverview = noctalia.state.get("overview.is_open")
-	if overviewMode == "overview_only" and isOverview == false then
+	if overviewMode == "overview_only" and isOverview ~= true then
 		stopAnimation()
 		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
 		return

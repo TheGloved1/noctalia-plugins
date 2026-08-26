@@ -48,8 +48,8 @@ local function render()
 	if type(overviewMode) ~= "string" then overviewMode = "always" end
 	local isOverview = noctalia.state.get("overview.is_open")
 	-- overview_only: visible only in Niri overview (inside backdrop)
-	-- We gate here *and* rely on Niri place-within-backdrop for correct layering
-	if overviewMode == "overview_only" and isOverview == false then
+	-- Treat nil as closed: layer-shell surfaces don't hide via place-within-backdrop alone.
+	if overviewMode == "overview_only" and isOverview ~= true then
 		desktopWidget.render(ui.box({ visible = false, width = 1, height = 1 }))
 		return
 	end
@@ -58,6 +58,7 @@ local function render()
 		return
 	end
 	-- nil (non-Niri) -> fallback to always visible
+	print(("[activate-linux] overview_mode=%q isOverview=%s rendering=yes"):format(overviewMode, tostring(isOverview)))
 
 	-- Use palette role with reduced alpha via opacity prop per-label.
 	-- Group opacity fades children uniformly, matching DMS Theme.surfaceVariantText at 40%.
