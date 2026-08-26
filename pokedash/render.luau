@@ -53,9 +53,10 @@ end
 
 local function loadFrameList(dir)
 	if dir == nil or dir == "" then return {} end
-	if type(io.popen) ~= "function" then return {} end
-	local handle = io.popen("ls " .. dir .. "/frame_*.png 2>/dev/null")
-	if not handle then return {} end
+	local popen = type(io.popen) == "function" and io.popen or nil
+	if popen == nil then return {} end
+	local ok, handle = pcall(popen, "ls " .. dir .. "/frame_*.png 2>/dev/null")
+	if not ok or handle == nil then return {} end
 	local frames = {}
 	for f in handle:lines() do
 		table.insert(frames, f)
