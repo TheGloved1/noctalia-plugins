@@ -32,6 +32,10 @@
         "center": "Center",
         "right": "Right"
       }
+    },
+    "text_color": {
+      "label": "Text Color",
+      "description": "Color of the watermark text (supports theme roles like 'on_surface_variant' or hex values)"
     }
   }
 }

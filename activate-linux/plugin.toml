@@ -73,3 +73,10 @@ entry = "desktop.luau"
     { value = "center", label_key = "settings.text_align.options.center" },
     { value = "right", label_key = "settings.text_align.options.right" }
   ]
+
+  [[desktop_widget.setting]]
+  key = "text_color"
+  type = "color"
+  label_key = "settings.text_color.label"
+  description_key = "settings.text_color.description"
+  default = "on_surface_variant"

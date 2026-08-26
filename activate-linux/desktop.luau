@@ -44,21 +44,22 @@ local function render()
 		textAlign = "center"
 	end
 
-	-- Use palette role with reduced alpha via opacity prop per-label.
-	-- Group opacity fades children uniformly, matching DMS Theme.surfaceVariantText at 40%.
+	local textColor = getConfig("text_color", "on_surface_variant")
+	if type(textColor) ~= "string" or textColor == "" then textColor = "on_surface_variant" end
+
 	desktopWidget.render(ui.column({ gap = 2, align = columnAlign }, {
 		ui.label({
 			text = firstLine,
 			fontSize = firstSize,
 			fontWeight = "light",
-			color = "on_surface_variant",
+			color = textColor,
 			opacity = opacity,
 			textAlign = textAlign,
 		}),
 		ui.label({
 			text = secondLine,
 			fontSize = secondSize,
-			color = "on_surface_variant",
+			color = textColor,
 			opacity = opacity,
 			textAlign = textAlign,
 		}),
