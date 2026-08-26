@@ -114,3 +114,10 @@ entry = "desktop.luau"
 [[service]]
 id = "overview"
 entry = "overview.luau"
+
+[[panel]]
+id = "overview-widget"
+entry = "panel.luau"
+width = 120
+height = 120
+placement = "floating"
