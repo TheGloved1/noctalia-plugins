@@ -1,0 +1,63 @@
+id = "gloves/activate-linux"
+name = "Activate Linux"
+version = "1.0.0"
+plugin_api = 18
+author = "gloves"
+license = "MIT"
+description = "Windows-style Activate Linux watermark for the desktop"
+icon = "info"
+tags = ["desktop", "watermark", "utility"]
+
+[[desktop_widget]]
+id = "watermark"
+entry = "desktop.luau"
+
+  [[desktop_widget.setting]]
+  key = "watermark_opacity"
+  type = "int"
+  label_key = "settings.watermark_opacity.label"
+  description_key = "settings.watermark_opacity.description"
+  default = 40
+  min = 0
+  max = 100
+
+  [[desktop_widget.setting]]
+  key = "first_line_size"
+  type = "int"
+  label_key = "settings.first_line_size.label"
+  description_key = "settings.first_line_size.description"
+  default = 22
+  min = 8
+  max = 72
+
+  [[desktop_widget.setting]]
+  key = "second_line_size"
+  type = "int"
+  label_key = "settings.second_line_size.label"
+  description_key = "settings.second_line_size.description"
+  default = 14
+  min = 8
+  max = 48
+
+  [[desktop_widget.setting]]
+  key = "customize_text"
+  type = "bool"
+  label_key = "settings.customize_text.label"
+  description_key = "settings.customize_text.description"
+  default = false
+
+  [[desktop_widget.setting]]
+  key = "first_line"
+  type = "string"
+  label_key = "settings.first_line.label"
+  description_key = "settings.first_line.description"
+  default = "Activate Linux"
+  visible_when = { key = "customize_text", values = ["true"] }
+
+  [[desktop_widget.setting]]
+  key = "second_line"
+  type = "string"
+  label_key = "settings.second_line.label"
+  description_key = "settings.second_line.description"
+  default = "Go to Settings to activate Linux."
+  visible_when = { key = "customize_text", values = ["true"] }

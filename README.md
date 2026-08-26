@@ -6,6 +6,8 @@ Plugins:
 
 - `gloves/keybind-cheatsheet` — Searchable keybindings for Mango, Hyprland, Niri (forked from `kenn/keybind-cheatsheet` with Niri CPU fix)
 - `gloves/screenshot-actions` — Region screenshot → menu for Swappy markup or OCR
+- `gloves/activate-linux` — Windows-style Activate Linux watermark (port of `hthienloc/dms-activate-linux`)
+- `gloves/pokedash` — Your favourite Pokemon on the desktop (port of `samgrande/PokeDash`, 52 roster, PokeAPI sprites)
 
 Add source:
 

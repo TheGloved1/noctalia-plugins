@@ -1,0 +1,28 @@
+{
+  "settings": {
+    "watermark_opacity": {
+      "label": "Opacity",
+      "description": "Transparency of the watermark"
+    },
+    "first_line_size": {
+      "label": "First Line Font Size",
+      "description": "Font size for the primary watermark line"
+    },
+    "second_line_size": {
+      "label": "Second Line Font Size",
+      "description": "Font size for the secondary watermark line"
+    },
+    "customize_text": {
+      "label": "Customize Text",
+      "description": "Enable manual override for the watermark text"
+    },
+    "first_line": {
+      "label": "First Line",
+      "description": "Custom text for the first watermark line"
+    },
+    "second_line": {
+      "label": "Second Line",
+      "description": "Custom text for the second watermark line"
+    }
+  }
+}

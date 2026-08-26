@@ -1,0 +1,100 @@
+id = "gloves/pokedash"
+name = "PokeDash"
+version = "1.0.0"
+plugin_api = 22
+author = "gloves"
+license = "MIT"
+description = "Your favourite Pokemon roaming your desktop"
+icon = "pets"
+tags = ["desktop", "fun", "pokemon", "widget"]
+dependencies = []
+
+[[desktop_widget]]
+id = "display"
+entry = "desktop.luau"
+
+  [[desktop_widget.setting]]
+  key = "selected_critter"
+  type = "select"
+  label_key = "settings.selected_critter.label"
+  description_key = "settings.selected_critter.description"
+  default = "Pikachu"
+  options = [
+    { value = "Pikachu", label_key = "settings.selected_critter.options.Pikachu" },
+    { value = "Bulbasaur", label_key = "settings.selected_critter.options.Bulbasaur" },
+    { value = "Charmander", label_key = "settings.selected_critter.options.Charmander" },
+    { value = "Squirtle", label_key = "settings.selected_critter.options.Squirtle" },
+    { value = "Mew", label_key = "settings.selected_critter.options.Mew" },
+    { value = "Gengar", label_key = "settings.selected_critter.options.Gengar" },
+    { value = "Eevee", label_key = "settings.selected_critter.options.Eevee" },
+    { value = "Lucario", label_key = "settings.selected_critter.options.Lucario" },
+    { value = "Mimikyu", label_key = "settings.selected_critter.options.Mimikyu" },
+    { value = "Snorlax", label_key = "settings.selected_critter.options.Snorlax" },
+    { value = "Lugia", label_key = "settings.selected_critter.options.Lugia" },
+    { value = "Moltres", label_key = "settings.selected_critter.options.Moltres" },
+    { value = "Zapdos", label_key = "settings.selected_critter.options.Zapdos" },
+    { value = "Articuno", label_key = "settings.selected_critter.options.Articuno" },
+    { value = "Cyndaquil", label_key = "settings.selected_critter.options.Cyndaquil" },
+    { value = "Dragonite", label_key = "settings.selected_critter.options.Dragonite" },
+    { value = "Vulpix", label_key = "settings.selected_critter.options.Vulpix" },
+    { value = "Abra", label_key = "settings.selected_critter.options.Abra" },
+    { value = "Jigglypuff", label_key = "settings.selected_critter.options.Jigglypuff" },
+    { value = "Psyduck", label_key = "settings.selected_critter.options.Psyduck" },
+    { value = "Meowth", label_key = "settings.selected_critter.options.Meowth" },
+    { value = "Ditto", label_key = "settings.selected_critter.options.Ditto" },
+    { value = "Cubone", label_key = "settings.selected_critter.options.Cubone" },
+    { value = "Bellsprout", label_key = "settings.selected_critter.options.Bellsprout" },
+    { value = "Zoobat", label_key = "settings.selected_critter.options.Zoobat" },
+    { value = "Arcanine", label_key = "settings.selected_critter.options.Arcanine" },
+    { value = "Exeggutor", label_key = "settings.selected_critter.options.Exeggutor" },
+    { value = "Machamp", label_key = "settings.selected_critter.options.Machamp" },
+    { value = "Lapras", label_key = "settings.selected_critter.options.Lapras" },
+    { value = "Aerodactyl", label_key = "settings.selected_critter.options.Aerodactyl" },
+    { value = "Cloyster", label_key = "settings.selected_critter.options.Cloyster" },
+    { value = "Gastly", label_key = "settings.selected_critter.options.Gastly" },
+    { value = "Haunter", label_key = "settings.selected_critter.options.Haunter" },
+    { value = "Scyther", label_key = "settings.selected_critter.options.Scyther" },
+    { value = "Onix", label_key = "settings.selected_critter.options.Onix" },
+    { value = "Slowpoke", label_key = "settings.selected_critter.options.Slowpoke" },
+    { value = "Geodude", label_key = "settings.selected_critter.options.Geodude" },
+    { value = "Butterfree", label_key = "settings.selected_critter.options.Butterfree" },
+    { value = "Beedrill", label_key = "settings.selected_critter.options.Beedrill" },
+    { value = "Pidgeot", label_key = "settings.selected_critter.options.Pidgeot" },
+    { value = "Raticate", label_key = "settings.selected_critter.options.Raticate" },
+    { value = "Arbok", label_key = "settings.selected_critter.options.Arbok" },
+    { value = "Sandslash", label_key = "settings.selected_critter.options.Sandslash" },
+    { value = "Ninetales", label_key = "settings.selected_critter.options.Ninetales" },
+    { value = "Tauros", label_key = "settings.selected_critter.options.Tauros" }
+  ]
+
+  [[desktop_widget.setting]]
+  key = "sprite_style"
+  type = "select"
+  label_key = "settings.sprite_style.label"
+  description_key = "settings.sprite_style.description"
+  default = "normal"
+  options = [
+    { value = "normal", label_key = "settings.sprite_style.options.normal" },
+    { value = "showdown", label_key = "settings.sprite_style.options.showdown" }
+  ]
+
+  [[desktop_widget.setting]]
+  key = "background_style"
+  type = "select"
+  label_key = "settings.background_style.label"
+  description_key = "settings.background_style.description"
+  default = "transparent"
+  options = [
+    { value = "transparent", label_key = "settings.background_style.options.transparent" },
+    { value = "dms", label_key = "settings.background_style.options.dms" },
+    { value = "glass", label_key = "settings.background_style.options.glass" }
+  ]
+
+  [[desktop_widget.setting]]
+  key = "sprite_scale"
+  type = "int"
+  label_key = "settings.sprite_scale.label"
+  description_key = "settings.sprite_scale.description"
+  default = 100
+  min = 50
+  max = 250

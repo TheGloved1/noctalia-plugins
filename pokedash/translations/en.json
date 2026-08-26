@@ -1,0 +1,76 @@
+{
+  "settings": {
+    "selected_critter": {
+      "label": "Pokemon",
+      "description": "Which Pokemon to display",
+      "options": {
+        "Pikachu": "Pikachu",
+        "Bulbasaur": "Bulbasaur",
+        "Charmander": "Charmander",
+        "Squirtle": "Squirtle",
+        "Mew": "Mew",
+        "Gengar": "Gengar",
+        "Eevee": "Eevee",
+        "Lucario": "Lucario",
+        "Mimikyu": "Mimikyu",
+        "Snorlax": "Snorlax",
+        "Lugia": "Lugia",
+        "Moltres": "Moltres",
+        "Zapdos": "Zapdos",
+        "Articuno": "Articuno",
+        "Cyndaquil": "Cyndaquil",
+        "Dragonite": "Dragonite",
+        "Vulpix": "Vulpix",
+        "Abra": "Abra",
+        "Jigglypuff": "Jigglypuff",
+        "Psyduck": "Psyduck",
+        "Meowth": "Meowth",
+        "Ditto": "Ditto",
+        "Cubone": "Cubone",
+        "Bellsprout": "Bellsprout",
+        "Zoobat": "Zoobat",
+        "Arcanine": "Arcanine",
+        "Exeggutor": "Exeggutor",
+        "Machamp": "Machamp",
+        "Lapras": "Lapras",
+        "Aerodactyl": "Aerodactyl",
+        "Cloyster": "Cloyster",
+        "Gastly": "Gastly",
+        "Haunter": "Haunter",
+        "Scyther": "Scyther",
+        "Onix": "Onix",
+        "Slowpoke": "Slowpoke",
+        "Geodude": "Geodude",
+        "Butterfree": "Butterfree",
+        "Beedrill": "Beedrill",
+        "Pidgeot": "Pidgeot",
+        "Raticate": "Raticate",
+        "Arbok": "Arbok",
+        "Sandslash": "Sandslash",
+        "Ninetales": "Ninetales",
+        "Tauros": "Tauros"
+      }
+    },
+    "sprite_style": {
+      "label": "Sprite Style",
+      "description": "Which sprite set to use",
+      "options": {
+        "normal": "Normal (Gen V animated)",
+        "showdown": "Showdown"
+      }
+    },
+    "background_style": {
+      "label": "Background Style",
+      "description": "Background behind the sprite",
+      "options": {
+        "transparent": "Transparent",
+        "dms": "DMS Theme",
+        "glass": "Glass / Frosted"
+      }
+    },
+    "sprite_scale": {
+      "label": "Sprite Scale",
+      "description": "Size of the sprite as a percentage"
+    }
+  }
+}

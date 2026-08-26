@@ -32,3 +32,29 @@ license = "MIT"
 description = "Region screenshot → menu for Swappy markup or OCR"
 plugin_api = 18
 tags = ["screenshot", "ocr", "annotate", "utility"]
+
+[[plugin]]
+id = "gloves/activate-linux"
+name = "Activate Linux"
+version = "1.0.0"
+updated_at = 1787730457
+added_at = 1787730457
+author = "gloves"
+license = "MIT"
+icon = "info"
+description = "Windows-style Activate Linux watermark for the desktop"
+plugin_api = 18
+tags = ["desktop", "watermark", "utility"]
+
+[[plugin]]
+id = "gloves/pokedash"
+name = "PokeDash"
+version = "1.0.0"
+updated_at = 1787730564
+added_at = 1787730564
+author = "gloves"
+license = "MIT"
+icon = "pets"
+description = "Your favourite Pokemon roaming your desktop"
+plugin_api = 22
+tags = ["desktop", "fun", "pokemon", "widget"]
