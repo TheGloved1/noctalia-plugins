@@ -1,0 +1,64 @@
+# Video Browser — List videos in a folder (recursive) with Copy / Open
+#
+# Usage: open the browser panel, pick a video, then:
+#   - Copy: copies the absolute file path to the clipboard
+#   - Open: opens the file with xdg-open (default application)
+#
+# Dependencies: xdg-utils (xdg-open)
+
+id = "gloves/video-browser"
+name = "Video Browser"
+version = "1.0.0"
+plugin_api = 18
+author = "gloves"
+license = "MIT"
+description = "List video files in a folder (recursive), sorted newest first, with Copy and Open actions"
+tags = ["video", "utility"]
+dependencies = [
+  "xdg-utils",
+]
+
+# ── Settings (editable in Settings → Plugins) ──
+
+[[setting]]
+key = "video_dir"
+type = "string"
+label_key = "settings.video_dir.label"
+description_key = "settings.video_dir.description"
+default = "~/Videos"
+
+[[setting]]
+key = "panel-placement"
+type = "select"
+label_key = "settings.panel_placement.label"
+description_key = "settings.panel_placement.description"
+default = "floating"
+options = [
+  { value = "floating", label_key = "settings.panel_placement.options.floating" },
+  { value = "attached", label_key = "settings.panel_placement.options.attached" },
+]
+
+[[setting]]
+key = "panel-along-bar"
+type = "select"
+label_key = "settings.panel_along_bar.label"
+description_key = "settings.panel_along_bar.description"
+default = "centered"
+options = [
+  { value = "centered", label_key = "settings.panel_along_bar.options.centered" },
+  { value = "near-trigger", label_key = "settings.panel_along_bar.options.near_trigger" },
+]
+
+# ── Entries ──
+
+# Video browser: recursive video list (wallhaven-style scroll), Copy / Open rows.
+# Open via IPC: noctalia msg panel-toggle gloves/video-browser:browser
+[[panel]]
+id = "browser"
+entry = "browser.luau"
+width = 920
+height = 780
+keyboard_focus = "exclusive"
+capture_keys = [
+  "Escape",
+]
