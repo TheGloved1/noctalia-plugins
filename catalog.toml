@@ -58,3 +58,15 @@ icon = "pets"
 description = "Your favourite Pokemon roaming your desktop"
 plugin_api = 22
 tags = ["desktop", "fun", "pokemon", "widget"]
+
+[[plugin]]
+id = "gloves/video-browser"
+name = "Video Browser"
+version = "1.0.0"
+updated_at = 1789954158
+added_at = 1789954158
+author = "gloves"
+license = "MIT"
+description = "List video files in a folder (recursive), sorted newest first, with Copy and Open actions"
+plugin_api = 18
+tags = ["video", "utility"]
