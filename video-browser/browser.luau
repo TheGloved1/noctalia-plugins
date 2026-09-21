@@ -148,16 +148,18 @@ local function loadVideos()
 end
 
 -- Drop cached thumbs that no longer match any scanned video.
+-- Fully defensive: pruning must never break opening the browser, even if the
+-- host lacks removeFile or the cache dir is unreadable.
 pruneThumbs = function()
-  local entries = noctalia.listDir(thumbBase())
-  if type(entries) ~= "table" then return end
+  local ok, entries = pcall(noctalia.listDir, thumbBase())
+  if not ok or type(entries) ~= "table" then return end
   local valid = {}
   for _, v in ipairs(videos) do
     valid[thumbKey(v.path, v.mtime) .. ".jpg"] = true
   end
   for _, name in ipairs(entries) do
     if not valid[name] then
-      noctalia.removeFile(thumbBase() .. "/" .. name)
+      pcall(noctalia.removeFile, thumbBase() .. "/" .. name)
     end
   end
 end

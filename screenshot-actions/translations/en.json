@@ -7,6 +7,8 @@
   "settings.panel_along_bar.description": "Where the panel sits along the bar",
   "settings.panel_along_bar.options.centered": "Centered",
   "settings.panel_along_bar.options.near_trigger": "Near Trigger",
+  "settings.ocr_language.label": "OCR Language",
+  "settings.ocr_language.description": "Tesseract language code(s) for Find Text, e.g. eng or eng+deu",
   "shortcut.label": "Screenshot",
   "plugin_name": "Screenshot Actions"
 }

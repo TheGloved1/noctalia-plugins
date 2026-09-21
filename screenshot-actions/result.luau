@@ -3,6 +3,11 @@
 
 local STATE_OCR_RESULT = "ocrResult"
 
+-- Draft tracking: ui.input edits arrive via onChange and must win over the
+-- last OCR result for Copy/Search until a fresh result lands.
+local lastResultText = nil
+local editedText = nil
+
 local function shellQuote(value)
     return "'" .. tostring(value):gsub("'", [["'"']]) .. "'"
 end
@@ -16,6 +21,11 @@ end
 local function render()
     local ocrResult = noctalia.state.get(STATE_OCR_RESULT)
     local text = ocrResult and ocrResult.text or ""
+    if text ~= lastResultText then
+        editedText = nil
+        lastResultText = text
+    end
+    local effective = editedText or text
     local capturePath = ocrResult and ocrResult.capturePath
 
     local body = ui.column({ flexGrow = 1, gap = 10, padding = 16 }, {
@@ -55,7 +65,7 @@ local function render()
                 controlSize = "sm",
                 variant = "primary",
                 onClick = function()
-                    copyText(text)
+                    copyText(effective)
                 end,
             }),
             ui.button({
@@ -65,7 +75,7 @@ local function render()
                 variant = "default",
                 onClick = function()
                     local url = "https://duckduckgo.com/?q="
-                    local enc = text:gsub(" ", "+"):gsub("([^%w+_.~-])", function(c)
+                    local enc = effective:gsub(" ", "+"):gsub("([^%w+_.~-])", function(c)
                         return string.format("%%%02X", string.byte(c))
                     end)
                     noctalia.runAsync("xdg-open " .. shellQuote(url .. enc))
@@ -86,22 +96,25 @@ local function render()
         }, {
             ui.input({
                 key = "ocr-preview",
-                value = text,
+                value = effective,
                 multiline = true,
                 flexGrow = 1,
                 fontSize = 13,
                 frameVisible = true,
+                onChange = function(value)
+                    editedText = value
+                end,
             }),
         }),
 
         -- URL/Email detection
         (function()
-            local url = text:match("https?://[^%s]+")
+            local url = effective:match("https?://[^%s]+")
             if not url then
-                local bare = text:match("www%.[%w%-%.]+[^%s]*")
+                local bare = effective:match("www%.[%w%-%.]+[^%s]*")
                 if bare then url = "https://" .. bare end
             end
-            local email = text:match("[%w%._%%+%-]+@[%w%.%-]+%.[%a][%a]+")
+            local email = effective:match("[%w%._%%+%-]+@[%w%.%-]+%.[%a][%a]+")
             if url or email then
                 return ui.row({ gap = 8, align = "center" }, {
                     url and ui.button({

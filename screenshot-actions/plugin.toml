@@ -47,6 +47,13 @@ options = [
   { value = "near-trigger", label_key = "settings.panel_along_bar.options.near_trigger" },
 ]
 
+[[setting]]
+key = "ocr-language"
+type = "string"
+label_key = "settings.ocr_language.label"
+description_key = "settings.ocr_language.description"
+default = "eng"
+
 # ── Entries ──
 
 # Main action menu: image preview + 2 buttons (Open / Find Text)

@@ -76,6 +76,7 @@ All settings live in Settings → Plugins (gear on the plugin's row).
 | --- | --- | --- | --- |
 | `panel-placement` | `select` | `floating` | How the panels appear: `floating` or `attached`. |
 | `panel-along-bar` | `select` | `centered` | Where the panel sits along the bar: `centered` or `near-trigger`. |
+| `ocr-language` | `string` | `eng` | Tesseract language code(s) for Find Text (e.g. `eng`, `eng+deu`). |
 
 ## IPC
 
