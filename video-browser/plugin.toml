@@ -51,14 +51,37 @@ options = [
 
 # ── Entries ──
 
-# Video browser: recursive video list (wallhaven-style scroll), Copy / Open rows.
+# Video browser: thumbnail grid of every video found (screenshot history layout).
 # Open via IPC: noctalia msg panel-toggle gloves/video-browser:browser
+# Selecting a tile opens the preview panel. Arrow keys navigate the grid.
 [[panel]]
 id = "browser"
 entry = "browser.luau"
 width = 920
 height = 780
 keyboard_focus = "exclusive"
+capture_keys = [
+  "Up",
+  "Down",
+  "Left",
+  "Right",
+  "ctrl+h",
+  "ctrl+j",
+  "ctrl+k",
+  "ctrl+l",
+  "Return",
+  "Enter",
+  "Space",
+  "Escape",
+]
+
+# Preview panel: large thumbnail + filename + Copy / Open actions.
+[[panel]]
+id = "preview"
+entry = "preview.luau"
+width = 480
+height = 520
+keyboard_focus = "on_demand"
 capture_keys = [
   "Escape",
 ]

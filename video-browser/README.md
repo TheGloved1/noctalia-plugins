@@ -1,20 +1,22 @@
 # Video Browser
 
-A Noctalia v5 plugin that lists every video file under a configurable folder —
-nested directories included, folders ignored — sorted newest first, with quick
-**Copy** (file path) and **Open** (default application via `xdg-open`) actions
-per row.
+A Noctalia v5 plugin that browses every video file under a configurable folder
+as a thumbnail grid — nested directories included, folders ignored — sorted
+newest first. Selecting a tile opens a preview panel with quick **Copy** (file
+path) and **Open** (default application via `xdg-open`) actions.
 
 ## Plugin
 
 | Field | Value |
 | --- | --- |
 | ID | `gloves/video-browser` |
-| Entries | Panel: `browser` (video list) |
+| Entries | Panels: `browser` (thumbnail grid), `preview` (preview + actions) |
 
 ## Requirements
 
 - **`xdg-utils`** — provides `xdg-open` for the **Open** action.
+- **`ffmpegthumbnailer`** (preferred) or **`ffmpeg`** — used to generate video
+  thumbnails. If neither is installed, tiles fall back to a placeholder image.
 
 ## Usage
 
@@ -24,10 +26,22 @@ Open the browser panel:
 noctalia msg panel-toggle gloves/video-browser:browser
 ```
 
-Each row shows the filename, its subfolder relative to the video folder, and the
-modification date plus size. **Copy** copies the absolute file path to the
-clipboard; **Open** launches the file in your default video application. Use the
-refresh button in the header to rescan after adding or removing files.
+The **browser panel** shows a thumbnail grid (pages of 16). Arrow keys or
+`ctrl+h/j/k/l` move the selection ring — holding a key repeats — and
+`Enter`/`Space` (or clicking a tile) opens that video in the **preview panel**.
+
+The **preview panel** shows a large thumbnail, the filename, its subfolder
+relative to the video folder, and the modification date plus size:
+
+- **Copy** — copies the absolute file path to the clipboard.
+- **Open** — launches the file in your default video application.
+- **Back** — returns to the browser grid.
+
+Open the preview panel (last selected video) directly:
+
+```sh
+noctalia msg panel-toggle gloves/video-browser:preview
+```
 
 ## Settings
 
@@ -48,3 +62,8 @@ All settings live in Settings → Plugins (gear on the plugin's row).
   creation date since the host only exposes `mtime`.
 - The scan recurses through all nested directories with a depth cap of 32 and
   guards against directory cycles.
+- Thumbnails are generated in the background with `ffmpegthumbnailer`
+  (or `ffmpeg` as fallback) and cached in the plugin's data directory under
+  `thumbs/`, keyed by file path and modification time so re-encodes refresh
+  automatically. Tiles that have no thumbnail yet show a placeholder; stale
+  cache entries are pruned on every scan.
