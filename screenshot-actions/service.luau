@@ -7,7 +7,7 @@
 -- silently. Requires save_to_file=true in Settings → Screenshot.
 
 local POLL_MS = 500
-local TIMEOUT_MS = 120000
+local TIMEOUT_MS = 60000
 local IDLE_MS = 3600000
 
 local capturing = false
@@ -51,8 +51,19 @@ local function newestPng(dir)
 end
 
 function onIpc(ev, _pl)
+  if ev == "status" then
+    noctalia.notify(
+      "Screenshot service",
+      (capturing and "capturing (" .. tostring(elapsedMs) .. "ms in " .. watchDir .. ")"
+        or "idle (dir " .. resolveScreenshotDir() .. ")")
+    )
+    return
+  end
   if ev ~= "capture" then return end
-  if capturing then return end
+  if capturing then
+    noctalia.log("screenshot-actions: capture ignored, already capturing")
+    return
+  end
   if noctalia.getSetting("shell.screenshot.save_to_file") == false then
     noctalia.notifyError("Screenshot", "Enable saving in Settings → Screenshot")
     return
@@ -64,9 +75,11 @@ function onIpc(ev, _pl)
   elapsedMs = 0
   capturing = true
   noctalia.setUpdateInterval(POLL_MS)
+  noctalia.log("screenshot-actions: launching region capture, watching " .. watchDir)
   local ok = noctalia.runAsync("noctalia msg screenshot-region", function(r)
     if not r then return end
     local out = ((r.stdout or "") .. (r.stderr or "")):lower()
+    noctalia.log("screenshot-actions: region launcher exited: " .. out:sub(1, 120))
     if out:match("error") then
       capturing = false
       noctalia.setUpdateInterval(IDLE_MS)
@@ -87,11 +100,13 @@ function update()
   if path and (mtime > baselineMtime or name ~= baselineName) then
     capturing = false
     noctalia.setUpdateInterval(IDLE_MS)
+    noctalia.log("screenshot-actions: detected " .. path)
     noctalia.state.set("lastCapture", path)
     noctalia.togglePanel("gloves/screenshot-actions:actions")
   elseif elapsedMs >= TIMEOUT_MS then
     capturing = false
     noctalia.setUpdateInterval(IDLE_MS)
+    noctalia.log("screenshot-actions: capture timed out after " .. tostring(TIMEOUT_MS) .. "ms")
   end
 end
 

@@ -100,11 +100,17 @@ Summary of every service command:
 | Command | Payload | Action |
 | --- | --- | --- |
 | `capture` | — | Select a region via the built-in tool and save the screenshot |
+| `status` | — | Show whether a capture is in flight (notification) |
 
 ## Notes
 
-- The `capture` IPC opens the action menu automatically when a capture finishes
-  (dismissing the region selection cancels silently after a timeout).
+- The `capture` IPC opens the action menu automatically when a capture finishes.
+  Dismissing the region selection leaves a 60s watch running; a second press
+  during that window is ignored (check `status` if a press seems to do
+  nothing). Restarting or re-enabling the plugin clears the watch.
+- If the Annotate action opens a blank editor, that is the shell's
+  `annotate <path>` handler, not this plugin — the path is passed through
+  verbatim (verify with `noctalia msg annotate <file>` in a terminal).
 - The history grid is read from your `[shell.screenshot]` directory; only
   non-empty PNG files are listed, newest first. The action menu works with any
   capture path set in the plugin's shared `lastCapture` state.
