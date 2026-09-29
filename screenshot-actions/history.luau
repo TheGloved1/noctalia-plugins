@@ -11,7 +11,14 @@ local PAGE_SIZE = COLUMNS * 4
 local COLUMN_GAP = 12
 local ROW_GAP = 12
 local TILE_RADIUS = 12
-local SCREENSHOT_DIR = noctalia.expandPath("~/Pictures/Screenshots")
+
+local function resolveScreenshotDir()
+  local v = noctalia.getSetting("shell.screenshot.directory")
+  if type(v) == "string" and v:match("%S") then
+    return noctalia.expandPath(v)
+  end
+  return noctalia.expandPath("~/Pictures/Screenshots")
+end
 
 local shots = {} -- { { path =, name =, mtime = }, ... }
 local cursor = 1
@@ -30,13 +37,14 @@ end
 
 local function loadShots()
   shots = {}
-  local entries = noctalia.listDir(SCREENSHOT_DIR)
+  local dir = resolveScreenshotDir()
+  local entries = noctalia.listDir(dir)
   if type(entries) ~= "table" then
     return
   end
   for _, name in ipairs(entries) do
     if extensionOf(name) == "png" then
-      local path = SCREENSHOT_DIR .. "/" .. name
+      local path = dir .. "/" .. name
       local info = noctalia.fileInfo(path)
       if info and info.size and info.size > 0 then
         table.insert(shots, { path = path, name = name, mtime = info.mtime or 0 })

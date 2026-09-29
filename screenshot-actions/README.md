@@ -1,9 +1,11 @@
 # Screenshot Actions
 
 A Noctalia v5 plugin for region screenshots with a quick action menu: open the
-capture in Swappy for annotation, copy it to the clipboard, or run OCR to find
-text in the image — plus a paged, keyboard-navigable history browser of past
-captures.
+capture in Noctalia's built-in annotation editor or run OCR to find text in the
+image — plus a paged, keyboard-navigable history browser of past captures.
+
+Capture, saving, and clipboard are handled by Noctalia's built-in screenshot
+tool (`screenshot-region` / `annotate` IPC + `[shell.screenshot]` policy).
 
 ## Plugin
 
@@ -14,20 +16,21 @@ captures.
 
 ## Requirements
 
-Install the tools used by the features you want on `PATH`. Missing tools are
-reported when that feature is started.
+- **`tesseract`** — OCR engine for Find Text (plus your language packs, e.g. `tesseract-data-eng`)
 
-- **`slurp`** — region selection
-- **`grim`** — screen capture
-- **`wl-copy`** — copy the capture to the clipboard
-- **`notify-send`** — capture notifications
-- **`swappy`** — annotation editor (**Open** action)
-- **`tesseract`** — OCR engine (plus your language packs, e.g. `tesseract-data-eng`)
+No capture tools needed: region selection, freeze, save, clipboard, and
+annotation all use the built-in screenshot tool. `wlr-screencopy` compositor
+support is required (Niri, Hyprland, Sway, …).
 
-Optional:
+Recommended Settings → Screenshot values when using this plugin:
 
-- **`wayfreeze`** — freezes the screen so region selection happens over a static frame
-- **`paplay`** / **`pw-play`** — capture shutter sound
+- Saving **on** (`save_to_file = true`) — the plugin finds the new capture by
+  polling the screenshot directory.
+- Edit Before Saving or Copying **off** (`annotate = false`) — otherwise every
+  capture opens the editor *and* the actions panel.
+- Run Command **off** (`pipe_to_command = false`) — otherwise every capture
+  fires your pipe command *and* the actions panel. The Annotate action opens
+  the editor on demand instead.
 
 ## Usage
 
@@ -37,16 +40,18 @@ Start a region capture from any keybind or script:
 noctalia msg plugin gloves/screenshot-actions:service all capture
 ```
 
-After a capture, the **actions panel** opens with a preview and three actions:
+After a capture, the **actions panel** opens with a preview and two actions:
 
-- **Copy** — copies the image to the clipboard.
-- **Open** — opens the capture in `swappy` for markup/annotation. Saving happens
-  in that editor.
+- **Annotate** — opens the capture in Noctalia's built-in annotation editor
+  (`noctalia msg annotate <path>`). Saving happens in that editor.
 - **Find Text** — runs `tesseract` OCR on the capture and opens the
   **OCR result panel** with the recognized text in an editable multiline area,
   so you can correct, trim, or extend it before copying or searching. Detected
   URLs can be opened directly and detected email addresses can open a mail
   composer. **Back** returns to the actions panel without clearing the result.
+
+Saving to the screenshot directory and copying to the clipboard follow your
+global Settings → Screenshot policy.
 
 The **history panel** browses past captures as a thumbnail grid (Wallhaven-style
 pages of 24). Arrow keys or `ctrl+h/j/k/l` move the selection ring — holding a
@@ -64,9 +69,6 @@ Open the action menu (last capture):
 ```sh
 noctalia msg panel-toggle gloves/screenshot-actions:actions
 ```
-
-Captures are saved to `~/Pictures/Screenshots` and copied to the clipboard, and
-a capture sound plays when `paplay`/`pw-play` is available.
 
 ## Settings
 
@@ -97,14 +99,14 @@ Summary of every service command:
 
 | Command | Payload | Action |
 | --- | --- | --- |
-| `capture` | — | Select a region and save the screenshot |
+| `capture` | — | Select a region via the built-in tool and save the screenshot |
 
 ## Notes
 
 - The `capture` IPC opens the action menu automatically when a capture finishes
-  (and is cancelled if the selection is dismissed).
-- The history grid is read from `~/Pictures/Screenshots`; only non-empty PNG
-  files are listed, newest first. The action menu works with any capture path
-  set in the plugin's shared `lastCapture` state.
+  (dismissing the region selection cancels silently after a timeout).
+- The history grid is read from your `[shell.screenshot]` directory; only
+  non-empty PNG files are listed, newest first. The action menu works with any
+  capture path set in the plugin's shared `lastCapture` state.
 - Captures are transient: they live in your screenshot directory, not in the
   plugin's data directory.
