@@ -3,6 +3,11 @@
 -- Wallhaven-style browser: pages of 24 screenshots in a scrollable thumbnail
 -- grid (native scrollbar, wheel-scrollable) with a chevron pager. Arrow keys
 -- move the selection ring; selecting a tile opens the actions panel.
+--
+-- Perf: tiles use cached 400px JPEG thumbs (lib/thumbs.luau), generated at
+-- capture time and backfilled per page. Full-res PNGs are fallback only.
+
+local thumbs = require("./lib/thumbs.luau")
 
 local PANEL_WIDTH = 920
 local PANEL_PADDING = 28
@@ -20,8 +25,12 @@ local function resolveScreenshotDir()
   return noctalia.expandPath("~/Pictures/Screenshots")
 end
 
-local shots = {} -- { { path =, name =, mtime = }, ... }
+local shots = {} -- { { path =, name =, mtime =, thumb = }, ... }
 local cursor = 1
+local panelOpen = false
+local backfilling = false
+local backfilledPage = 0
+local render -- forward declaration (backfillPage/maybeBackfill defined before render)
 
 local REPEAT_DELAY = 350 -- ms before a held key starts repeating
 local REPEAT_INTERVAL = 50 -- ms between repeats
@@ -34,27 +43,84 @@ local function extensionOf(name)
 end
 
 -- ── Loading ──────────────────────────────────────────────────────────────
+-- Callbacks get a ~25ms CPU budget, so a full stat storm over hundreds of
+-- files kills onOpen. Instead: keep a session cache (name -> mtime), stat
+-- only unknown files, chunked across frames via onFrameTick.
 
-local function loadShots()
+local known = {} -- name -> { path =, mtime = }
+local queue = {} -- names awaiting stat
+local qi = 1
+local loading = false
+local currentDir = ""
+local LOAD_CHUNK = 60 -- fileInfo calls per frame (~5ms, well under budget)
+
+local function rebuildShots()
   shots = {}
-  local dir = resolveScreenshotDir()
-  local entries = noctalia.listDir(dir)
-  if type(entries) ~= "table" then
-    return
-  end
-  for _, name in ipairs(entries) do
-    if extensionOf(name) == "png" then
-      local path = dir .. "/" .. name
-      local info = noctalia.fileInfo(path)
-      if info and info.size and info.size > 0 then
-        table.insert(shots, { path = path, name = name, mtime = info.mtime or 0 })
-      end
-    end
+  for name, e in pairs(known) do
+    table.insert(shots, { path = e.path, name = name, mtime = e.mtime, thumb = nil })
   end
   table.sort(shots, function(a, b)
     if a.mtime ~= b.mtime then return a.mtime > b.mtime end
     return a.name > b.name
   end)
+  if #shots == 0 then
+    cursor = 1
+  elseif cursor > #shots then
+    cursor = #shots
+  end
+end
+
+local function startRescan()
+  local dir = resolveScreenshotDir()
+  if dir ~= currentDir then
+    currentDir = dir
+    known = {}
+  end
+  local entries = noctalia.listDir(dir)
+  if type(entries) ~= "table" then
+    entries = {}
+  end
+  local seen = {}
+  queue = {}
+  qi = 1
+  for _, name in ipairs(entries) do
+    seen[name] = true
+    if not known[name] then
+      table.insert(queue, name)
+    end
+  end
+  for name, _ in pairs(known) do
+    if not seen[name] then
+      known[name] = nil
+    end
+  end
+  loading = #queue > 0
+  rebuildShots()
+end
+
+-- Stat a chunk of queued files. Returns true when the queue is drained.
+local function pumpQueue()
+  local n = 0
+  while qi <= #queue and n < LOAD_CHUNK do
+    local name = queue[qi]
+    qi += 1
+    n += 1
+    if extensionOf(name) == "png" then
+      local path = currentDir .. "/" .. name
+      local info = noctalia.fileInfo(path)
+      if info and info.size and info.size > 0 then
+        known[name] = { path = path, mtime = info.mtime or 0 }
+      else
+        known[name] = nil
+      end
+    end
+  end
+  if qi > #queue then
+    loading = false
+    rebuildShots()
+    return true
+  end
+  return false
 end
 
 -- ── Actions ────────────────────────────────────────────────────────────────
@@ -84,6 +150,68 @@ local function totalPages()
     return 1
   end
   return math.max(1, math.ceil(#shots / PAGE_SIZE))
+end
+
+-- ── Thumbnails ─────────────────────────────────────────────────────────────
+-- Tiles render immediately (thumb or full-res fallback); missing thumbs for
+-- the visible page generate async and refresh the grid when done. Only the
+-- visible page is ever statted (<=16 items), never the whole library.
+
+local function resolvePageThumbs()
+  local changed = false
+  local first = pageStart(pageFor(cursor))
+  local last = pageEnd(pageFor(cursor))
+  for i = first, last do
+    local s = shots[i]
+    if s and not s.thumb then
+      local tp = thumbs.thumbPath(s.name, s.mtime)
+      if thumbs.isFresh(tp, s.mtime) then
+        s.thumb = tp
+        changed = true
+      end
+    end
+  end
+  return changed
+end
+
+local function pageItems()
+  local first = pageStart(pageFor(cursor))
+  local last = pageEnd(pageFor(cursor))
+  local items = {}
+  for i = first, last do
+    local s = shots[i]
+    if s then
+      table.insert(items, { src = s.path, name = s.name, mtime = s.mtime })
+    end
+  end
+  return items
+end
+
+local function backfillPage()
+  if backfilling then
+    return
+  end
+  backfilling = true
+  thumbs.backfillAsync(pageItems(), function()
+    backfilling = false
+    if not panelOpen then
+      return
+    end
+    if resolvePageThumbs() then
+      render()
+    end
+  end)
+end
+
+local function maybeBackfill(force)
+  if resolvePageThumbs() then
+    render()
+  end
+  local p = pageFor(cursor)
+  if force or p ~= backfilledPage then
+    backfilledPage = p
+    backfillPage()
+  end
 end
 
 -- ── Rendering ──────────────────────────────────────────────────────────────
@@ -116,7 +244,7 @@ local function shotTile(shot, index)
     ui.image({
       width = frameWidth,
       height = frameHeight,
-      path = shot.path,
+      path = shot.thumb or shot.path,
       fit = "cover",
       radius = TILE_RADIUS,
       border = border,
@@ -183,11 +311,12 @@ local function pager()
   })
 end
 
-local function render()
+render = function()
   local page = pageFor(cursor)
   panel.render(ui.column({ flexGrow = 1, gap = 12, align = "stretch" }, {
     ui.row({ align = "center", justify = "space_between", gap = 8 }, {
       ui.label({ text = "Screenshot History", fontSize = 16, fontWeight = "bold", color = "on_surface", flexGrow = 1 }),
+      loading and ui.label({ text = "Loading…", fontSize = 12, color = "on_surface_variant" }) or nil,
       ui.button({ glyph = "close", onClick = "onClose" }),
     }),
 
@@ -248,6 +377,7 @@ function onKey(chord, pressed)
 
   if moveFor(chord) then
     render()
+    maybeBackfill()
   end
   if isDirectional(chord) then
     heldChord = chord
@@ -256,6 +386,12 @@ function onKey(chord, pressed)
 end
 
 function onFrameTick(deltaMs)
+  if loading then
+    if pumpQueue() then
+      render()
+      maybeBackfill(true)
+    end
+  end
   if heldChord == nil then
     return
   end
@@ -272,21 +408,26 @@ function onFrameTick(deltaMs)
   end
   if moved then
     render()
+    maybeBackfill()
   end
 end
 
 -- ── Callbacks ──────────────────────────────────────────────────────────────
 
 function onOpen(_context)
-  loadShots()
+  startRescan()
   cursor = 1
   heldChord = nil
   repeatElapsed = 0
+  backfilledPage = 0
+  panelOpen = true
   panel.setNeedsFrameTick(true)
   render()
+  maybeBackfill(true)
 end
 
 function onClose()
+  panelOpen = false
   panel.close()
 end
 
@@ -297,6 +438,7 @@ function onPrevPage()
   end
   cursor = math.min(pageStart(page), #shots)
   render()
+  maybeBackfill()
 end
 
 function onNextPage()
@@ -306,11 +448,17 @@ function onNextPage()
   end
   cursor = pageStart(page)
   render()
+  maybeBackfill()
 end
 
 -- Refresh the grid when a new capture lands while the panel is open.
+-- Incremental: only unknown files are statted (chunked via frame ticks).
 noctalia.state.watch("lastCapture", function(_)
-  loadShots()
+  if not panelOpen then
+    return
+  end
+  startRescan()
   if cursor > #shots then cursor = #shots end
   render()
+  maybeBackfill(false)
 end)

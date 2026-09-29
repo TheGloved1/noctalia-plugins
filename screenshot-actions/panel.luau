@@ -1,6 +1,8 @@
 --!nonstrict
 -- Screenshot Actions — Main action menu
 
+local thumbs = require("./lib/thumbs.luau")
+
 local STATE_LAST_CAPTURE = "lastCapture"
 
 local function shellQuote(value)
@@ -18,6 +20,13 @@ local function render()
 
     local hasImage = capturePath and capturePath ~= "" and noctalia.fileExists and noctalia.fileExists(capturePath)
 
+    -- Prefer the cached thumb (same helper as history); falls back to full.
+    local previewPath = capturePath
+    if hasImage then
+        local info = noctalia.fileInfo(capturePath)
+        previewPath = thumbs.freshThumb(capturePath, info and info.mtime) or capturePath
+    end
+
     local body = ui.column({ flexGrow = 1, gap = 10, padding = 16 }, {
         ui.row({ align = "center", gap = 10 }, {
             ui.glyph({ name = "crosshair", size = 20, color = "primary" }),
@@ -30,7 +39,7 @@ local function render()
 
         ui.column({ align = "center", justify = "center", gap = 8 }, {
             hasImage and ui.image({
-                path = capturePath,
+                path = previewPath,
                 height = 160,
                 fit = "contain",
                 radius = 12,

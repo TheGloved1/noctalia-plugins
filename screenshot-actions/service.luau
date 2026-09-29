@@ -10,6 +10,8 @@ local POLL_MS = 500
 local TIMEOUT_MS = 60000
 local IDLE_MS = 3600000
 
+local thumbs = require("./lib/thumbs.luau")
+
 local capturing = false
 local baselineMtime = 0
 local baselineName = ""
@@ -101,6 +103,8 @@ function update()
     capturing = false
     noctalia.setUpdateInterval(IDLE_MS)
     noctalia.log("screenshot-actions: detected " .. path)
+    -- Thumb now so history/actions panels never decode the full PNG.
+    thumbs.backfillAsync({ { src = path, name = name, mtime = mtime } }, nil)
     noctalia.state.set("lastCapture", path)
     noctalia.togglePanel("gloves/screenshot-actions:actions")
   elseif elapsedMs >= TIMEOUT_MS then
