@@ -24,14 +24,20 @@ tags = ["bar", "panel", "utility", "system", "hyprland", "mangowc", "niri"]
 [[plugin]]
 id = "gloves/screenshot-actions"
 name = "Screenshot Actions"
-version = "1.0.0"
-updated_at = 1787670333
+version = "1.1.0"
+updated_at = 1790676235
 added_at = 1787670333
 author = "gloves"
 license = "MIT"
-description = "Region screenshot → menu for Swappy markup or OCR"
-plugin_api = 18
+description = "Region screenshot → menu for built-in annotation or OCR"
+plugin_api = 26
 tags = ["screenshot", "ocr", "annotate", "utility"]
+
+[[plugin.release]]
+plugin_api = 18
+version = "1.0.0"
+updated_at = 1787670333
+rev = "6b85d92e63ddc006507d009190d5a84f2cca7cfb"
 
 [[plugin]]
 id = "gloves/activate-linux"
