@@ -1,23 +1,25 @@
-# Screenshot Actions — Region capture → menu for built-in annotation or OCR
+# Screenshot Actions — Region capture → menu for Swappy markup, copy, or OCR
 #
 # Usage: Press SUPER+SHIFT+S to capture a region (via Noctalia's built-in
 # screenshot tool), then choose:
-#   - Annotate (built-in annotation editor)
+#   - Open (Swappy markup)
+#   - Copy (clipboard via wl-copy)
 #   - Find Text (OCR with inline result panel)
 #
-# Dependencies: tesseract (for OCR only). Capture, clipboard, and annotation
-# use Noctalia's built-in screenshot tool — no slurp/grim/swappy needed.
+# Dependencies: tesseract (for OCR), swappy (for Open), wl-clipboard (for Copy).
 
 id = "gloves/screenshot-actions"
 name = "Screenshot Actions"
-version = "1.1.0"
+version = "1.2.0"
 plugin_api = 26
 author = "gloves"
 license = "MIT"
-description = "Region screenshot → menu for built-in annotation or OCR"
+description = "Region screenshot → menu for Swappy markup, copy, or OCR"
 tags = ["screenshot", "ocr", "annotate", "utility"]
 dependencies = [
   "tesseract",
+  "swappy",
+  "wl-clipboard",
 ]
 
 # ── Settings (editable in Settings → Plugins) ──

@@ -65,18 +65,41 @@ local function render()
 
         ui.row({ align = "center", gap = 12 }, {
             ui.button({
-                text = "Annotate",
-                glyph = "pencil",
+                text = "Open",
+                glyph = "open-in-new",
                 flexGrow = 1,
                 controlSize = "lg",
                 variant = "primary",
                 onClick = function()
                     local path = noctalia.state.get(STATE_LAST_CAPTURE)
                     if not path or path == "" then return end
-                    noctalia.runAsync("noctalia msg annotate " .. shellQuote(path))
+                    if not noctalia.commandExists("swappy") then
+                        noctalia.notifyError("swappy not installed")
+                        return
+                    end
+                    noctalia.runAsync("swappy -f " .. shellQuote(path))
                     panel.close()
                 end,
             }),
+            ui.button({
+                text = "Copy",
+                glyph = "content-copy",
+                flexGrow = 1,
+                controlSize = "lg",
+                variant = "default",
+                onClick = function()
+                    local path = noctalia.state.get(STATE_LAST_CAPTURE)
+                    if not path or path == "" then return end
+                    if not noctalia.commandExists("wl-copy") then
+                        noctalia.notifyError("wl-copy not installed")
+                        return
+                    end
+                    noctalia.runAsync("sh -c 'cat " .. shellQuote(path) .. " | wl-copy'")
+                    noctalia.notify("Screenshot", "Image copied to clipboard")
+                end,
+            }),
+        }),
+        ui.row({ align = "center", gap = 12 }, {
             ui.button({
                 text = "Find Text",
                 glyph = "scan",
