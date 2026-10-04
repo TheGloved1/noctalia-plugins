@@ -17,7 +17,6 @@ tool (`screenshot-region` / `annotate` IPC + `[shell.screenshot]` policy).
 ## Requirements
 
 - **`tesseract`** — OCR engine for Find Text (plus your language packs, e.g. `tesseract-data-eng`)
-- **`swappy`** — image editor for the Open action
 - **`wl-clipboard`** (`wl-copy`) — clipboard for the Copy action
 
 No capture tools needed: region selection and saving use the built-in screenshot
@@ -43,8 +42,8 @@ noctalia msg plugin gloves/screenshot-actions:service all capture
 
 After a capture, the **actions panel** opens with a preview and three actions:
 
-- **Open** — opens the capture in Swappy for markup (`swappy -f <path>`). Saving
-  happens in Swappy.
+- **Annotate** — opens the capture in Noctalia's built-in annotation editor
+  (`noctalia msg annotate <path>`). Saving happens in that editor.
 - **Copy** — copies the image to the clipboard via `wl-copy`.
 - **Find Text** — runs `tesseract` OCR on the capture and opens the
   **OCR result panel** with the recognized text in an editable multiline area,
@@ -110,8 +109,8 @@ Summary of every service command:
   Dismissing the region selection leaves a 60s watch running; a second press
   during that window is ignored (check `status` if a press seems to do
   nothing). Restarting or re-enabling the plugin clears the watch.
-- The Open action launches Swappy with `swappy -f <path>`; ensure Swappy is
-  installed for markup.
+- The Annotate action opens Noctalia's built-in editor
+  (`noctalia msg annotate <path>`).
 - The history grid is read from your `[shell.screenshot]` directory; only
   non-empty PNG files are listed, newest first. The action menu works with any
   capture path set in the plugin's shared `lastCapture` state.

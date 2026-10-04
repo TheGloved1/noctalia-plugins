@@ -40,7 +40,7 @@ local function render()
         ui.column({ align = "center", justify = "center", gap = 8 }, {
             hasImage and ui.image({
                 path = previewPath,
-                height = 160,
+                height = 140,
                 fit = "contain",
                 radius = 12,
                 borderWidth = 1,
@@ -49,7 +49,7 @@ local function render()
             }) or ui.column({
                 align = "center",
                 justify = "center",
-                height = 180,
+                height = 160,
                 flexGrow = 1,
             }, {
                 ui.glyph({ name = "image", size = 48, color = "outline" }),
@@ -63,21 +63,17 @@ local function render()
             }) or nil,
         }),
 
-        ui.row({ align = "center", gap = 12 }, {
+        ui.row({ align = "center", gap = 8 }, {
             ui.button({
-                text = "Open",
-                glyph = "open-in-new",
+                text = "Annotate",
+                glyph = "pencil",
                 flexGrow = 1,
-                controlSize = "lg",
+                controlSize = "md",
                 variant = "primary",
                 onClick = function()
                     local path = noctalia.state.get(STATE_LAST_CAPTURE)
                     if not path or path == "" then return end
-                    if not noctalia.commandExists("swappy") then
-                        noctalia.notifyError("swappy not installed")
-                        return
-                    end
-                    noctalia.runAsync("swappy -f " .. shellQuote(path))
+                    noctalia.runAsync("noctalia msg annotate " .. shellQuote(path))
                     panel.close()
                 end,
             }),
@@ -85,7 +81,7 @@ local function render()
                 text = "Copy",
                 glyph = "content-copy",
                 flexGrow = 1,
-                controlSize = "lg",
+                controlSize = "md",
                 variant = "default",
                 onClick = function()
                     local path = noctalia.state.get(STATE_LAST_CAPTURE)
@@ -98,13 +94,11 @@ local function render()
                     noctalia.notify("Screenshot", "Image copied to clipboard")
                 end,
             }),
-        }),
-        ui.row({ align = "center", gap = 12 }, {
             ui.button({
                 text = "Find Text",
                 glyph = "scan",
                 flexGrow = 1,
-                controlSize = "lg",
+                controlSize = "md",
                 variant = "default",
                 onClick = function()
                     local path = noctalia.state.get(STATE_LAST_CAPTURE)
