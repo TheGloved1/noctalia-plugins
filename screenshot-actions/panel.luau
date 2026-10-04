@@ -65,7 +65,7 @@ local function render()
 
         ui.row({ align = "center", gap = 8 }, {
             ui.button({
-                text = "Annotate",
+                text = "Open",
                 glyph = "pencil",
                 flexGrow = 1,
                 controlSize = "md",
