@@ -68,6 +68,12 @@ local function isPipeNotifyConfigured()
     and cmd:find("captured", 1, true) ~= nil
 end
 
+-- Whether we believe the actions panel is currently open. `togglePanel`
+-- toggles, so blind-toggling on every capture closes a panel opened by the
+-- previous capture (or double-delivers when pipe + poll both fire). The panel
+-- reports its own lifecycle via the shared `actionsVisible` key.
+local panelOpen = false
+
 local function deliverCapture(path, name, mtime, source)
   capturing = false
   noctalia.setUpdateInterval(IDLE_MS)
@@ -75,8 +81,19 @@ local function deliverCapture(path, name, mtime, source)
   -- Thumb now so history/actions panels never decode the full PNG.
   thumbs.backfillAsync({ { src = path, name = name, mtime = mtime } }, nil)
   noctalia.state.set("lastCapture", path)
-  noctalia.togglePanel("gloves/screenshot-actions:actions")
+  -- Open if closed; if already open the lastCapture watch re-renders it.
+  if not panelOpen and noctalia.state.get("actionsVisible") ~= true then
+    panelOpen = true
+    noctalia.togglePanel("gloves/screenshot-actions:actions")
+  else
+    panelOpen = true
+    noctalia.log("screenshot-actions: panel already open, preview updated")
+  end
 end
+
+noctalia.state.watch("actionsVisible", function(v)
+  if v ~= true then panelOpen = false end
+end)
 
 function onIpc(ev, pl)
   -- Verbose entry log (debug): every dispatch lands here before branching.

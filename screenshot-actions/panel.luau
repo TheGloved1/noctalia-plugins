@@ -136,10 +136,12 @@ local function render()
 end
 
 function onOpen(_context)
+    noctalia.state.set("actionsVisible", true)
     render()
 end
 
 function onClose()
+    noctalia.state.set("actionsVisible", false)
 end
 
 noctalia.state.watch(STATE_LAST_CAPTURE, function(v)
