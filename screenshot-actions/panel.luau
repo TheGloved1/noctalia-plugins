@@ -40,7 +40,7 @@ local function render()
         ui.column({ align = "center", justify = "center", gap = 8 }, {
             hasImage and ui.image({
                 path = previewPath,
-                height = 140,
+                height = 170,
                 fit = "contain",
                 radius = 12,
                 borderWidth = 1,
@@ -49,7 +49,7 @@ local function render()
             }) or ui.column({
                 align = "center",
                 justify = "center",
-                height = 160,
+                height = 190,
                 flexGrow = 1,
             }, {
                 ui.glyph({ name = "image", size = 48, color = "outline" }),

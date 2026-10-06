@@ -10,7 +10,7 @@
 
 id = "gloves/screenshot-actions"
 name = "Screenshot Actions"
-version = "1.4.2"
+version = "1.4.3"
 plugin_api = 26
 author = "gloves"
 license = "MIT"
