@@ -3,8 +3,9 @@
 --
 -- `noctalia msg screenshot-region` is fire-and-forget (returns "ok"
 -- immediately), so we snapshot the newest PNG in the screenshot directory,
--- launch the region overlay, then poll for a newer file. Cancel → timeout
--- silently. Requires save_to_file=true in Settings → Screenshot.
+-- launch the region overlay, then poll for a newer file. ESC-cancel sends no
+-- signal, so a second `capture` press resets the watch and relaunches the
+-- overlay instead of being ignored. Requires save_to_file=true.
 
 local POLL_MS = 500
 local TIMEOUT_MS = 60000
@@ -62,14 +63,11 @@ function onIpc(ev, _pl)
     return
   end
   if ev ~= "capture" then return end
-  if capturing then
-    noctalia.log("screenshot-actions: capture ignored, already capturing")
-    return
-  end
   if noctalia.getSetting("shell.screenshot.save_to_file") == false then
     noctalia.notifyError("Screenshot", "Enable saving in Settings → Screenshot")
     return
   end
+  local restarted = capturing
   watchDir = resolveScreenshotDir()
   local _, mtime, name = newestPng(watchDir)
   baselineMtime = mtime or 0
@@ -77,11 +75,17 @@ function onIpc(ev, _pl)
   elapsedMs = 0
   capturing = true
   noctalia.setUpdateInterval(POLL_MS)
-  noctalia.log("screenshot-actions: launching region capture, watching " .. watchDir)
+  noctalia.log("screenshot-actions: launching region capture"
+    .. (restarted and " (restarted watch)" or "") .. ", watching " .. watchDir)
   local ok = noctalia.runAsync("noctalia msg screenshot-region", function(r)
     if not r then return end
     local out = ((r.stdout or "") .. (r.stderr or "")):lower()
     noctalia.log("screenshot-actions: region launcher exited: " .. out:sub(1, 120))
+    if out:match("already active") then
+      -- Overlay still open from the previous press; keep watching it.
+      noctalia.log("screenshot-actions: overlay already active, keeping watch")
+      return
+    end
     if out:match("error") then
       capturing = false
       noctalia.setUpdateInterval(IDLE_MS)

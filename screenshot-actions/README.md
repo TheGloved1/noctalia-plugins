@@ -106,9 +106,9 @@ Summary of every service command:
 ## Notes
 
 - The `capture` IPC opens the action menu automatically when a capture finishes.
-  Dismissing the region selection leaves a 60s watch running; a second press
-  during that window is ignored (check `status` if a press seems to do
-  nothing). Restarting or re-enabling the plugin clears the watch.
+  Pressing it again resets the watch and relaunches the region overlay, so
+  ESC-cancel never leaves a dead window. An untouched watch still times out
+  after 60s.
 - The Annotate action opens Noctalia's built-in editor
   (`noctalia msg annotate <path>`).
 - The history grid is read from your `[shell.screenshot]` directory; only
