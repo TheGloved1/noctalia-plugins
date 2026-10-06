@@ -1,11 +1,15 @@
 --!nonstrict
 -- Screenshot Actions — capture coordinator via Noctalia's built-in screenshot.
 --
--- `noctalia msg screenshot-region` is fire-and-forget (returns "ok"
--- immediately), so we snapshot the newest PNG in the screenshot directory,
--- launch the region overlay, then poll for a newer file. ESC-cancel sends no
--- signal, so a second `capture` press resets the watch and relaunches the
--- overlay instead of being ignored. Requires save_to_file=true.
+-- Two delivery paths:
+-- 1. Pipe notify (recommended): Settings → Screenshot → Run Command with the
+--    command from the README fires `... all captured "$NOCTALIA_SCREENSHOT_PATH"`
+--    per capture. Event-driven, so ESC-cancel sends nothing and the next press
+--    always works. Requires save_to_file=true so the path exists.
+-- 2. Directory poll fallback: `capture` snapshots the newest PNG, launches the
+--    region overlay, then polls for a newer file. `screenshot-region` is
+--    fire-and-forget, so a second `capture` press resets the watch and
+--    relaunches the overlay instead of being ignored.
 
 local POLL_MS = 500
 local TIMEOUT_MS = 60000
@@ -53,13 +57,54 @@ local function newestPng(dir)
   return bestPath, bestMtime, bestName
 end
 
-function onIpc(ev, _pl)
+-- True when the shell's Run Command points back at our `captured` event.
+local function isPipeNotifyConfigured()
+  if noctalia.getSetting("shell.screenshot.pipe_to_command") ~= true then
+    return false
+  end
+  local cmd = noctalia.getSetting("shell.screenshot.pipe_command")
+  return type(cmd) == "string"
+    and cmd:find("screenshot%-actions", 1) ~= nil
+    and cmd:find("captured", 1, true) ~= nil
+end
+
+local function deliverCapture(path, name, mtime, source)
+  capturing = false
+  noctalia.setUpdateInterval(IDLE_MS)
+  noctalia.log("screenshot-actions: captured via " .. source .. ": " .. path)
+  -- Thumb now so history/actions panels never decode the full PNG.
+  thumbs.backfillAsync({ { src = path, name = name, mtime = mtime } }, nil)
+  noctalia.state.set("lastCapture", path)
+  noctalia.togglePanel("gloves/screenshot-actions:actions")
+end
+
+function onIpc(ev, pl)
   if ev == "status" then
     noctalia.notify(
       "Screenshot service",
       (capturing and "capturing (" .. tostring(elapsedMs) .. "ms in " .. watchDir .. ")"
         or "idle (dir " .. resolveScreenshotDir() .. ")")
+        .. (isPipeNotifyConfigured() and " [pipe notify on]" or " [poll fallback]")
     )
+    return
+  end
+  if ev == "captured" then
+    -- Fired by the shell's Run Command: anything after the event is the path.
+    local path = tostring(pl or ""):match("^%s*(.-)%s*$")
+    local q = path:sub(1, 1)
+    if (q == "'" or q == '"') and path:sub(-1) == q and #path >= 2 then
+      path = path:sub(2, -2)
+    end
+    if path == "" then
+      noctalia.log("screenshot-actions: captured event with empty path")
+      return
+    end
+    local info = noctalia.fileInfo(path)
+    if not info or not info.size or info.size == 0 then
+      noctalia.log("screenshot-actions: captured path missing/empty: " .. path)
+      return
+    end
+    deliverCapture(path, path:match("([^/]+)$") or path, info.mtime or 0, "pipe")
     return
   end
   if ev ~= "capture" then return end
@@ -76,7 +121,9 @@ function onIpc(ev, _pl)
   capturing = true
   noctalia.setUpdateInterval(POLL_MS)
   noctalia.log("screenshot-actions: launching region capture"
-    .. (restarted and " (restarted watch)" or "") .. ", watching " .. watchDir)
+    .. (restarted and " (restarted watch)" or "")
+    .. (isPipeNotifyConfigured() and "" or " [no pipe notify; poll fallback]")
+    .. ", watching " .. watchDir)
   local ok = noctalia.runAsync("noctalia msg screenshot-region", function(r)
     if not r then return end
     local out = ((r.stdout or "") .. (r.stderr or "")):lower()
@@ -104,13 +151,7 @@ function update()
   elapsedMs += POLL_MS
   local path, mtime, name = newestPng(watchDir)
   if path and (mtime > baselineMtime or name ~= baselineName) then
-    capturing = false
-    noctalia.setUpdateInterval(IDLE_MS)
-    noctalia.log("screenshot-actions: detected " .. path)
-    -- Thumb now so history/actions panels never decode the full PNG.
-    thumbs.backfillAsync({ { src = path, name = name, mtime = mtime } }, nil)
-    noctalia.state.set("lastCapture", path)
-    noctalia.togglePanel("gloves/screenshot-actions:actions")
+    deliverCapture(path, name, mtime, "poll")
   elseif elapsedMs >= TIMEOUT_MS then
     capturing = false
     noctalia.setUpdateInterval(IDLE_MS)

@@ -24,13 +24,37 @@ tool. `wlr-screencopy` compositor support is required (Niri, Hyprland, Sway, …
 
 Recommended Settings → Screenshot values when using this plugin:
 
-- Saving **on** (`save_to_file = true`) — the plugin finds the new capture by
-  polling the screenshot directory.
+- Saving **on** (`save_to_file = true`) — the plugin needs the capture file.
 - Edit Before Saving or Copying **off** (`annotate = false`) — otherwise every
   capture opens the editor *and* the actions panel.
-- Run Command **off** (`pipe_to_command = false`) — otherwise every capture
-  fires your pipe command *and* the actions panel. The Annotate action opens
-  the editor on demand instead.
+- Run Command **on** (`pipe_to_command = true`) with the notify command below —
+  this is what makes delivery instant and cancel-safe (see Pipe setup).
+
+## Pipe setup (recommended)
+
+The plugin cannot write shell settings itself (plugins are read-only for
+global config), so set this once in Settings → Screenshot:
+
+- **Run Command** → on
+- **Command** → paste exactly:
+
+```sh
+cat > /dev/null; noctalia msg plugin gloves/screenshot-actions:service all captured "$NOCTALIA_SCREENSHOT_PATH"
+```
+
+How it works: after every capture the shell saves the PNG (requires Saving on),
+then runs this command with the PNG on stdin (`cat` drains it) and the saved
+path in `$NOCTALIA_SCREENSHOT_PATH`. The service opens the actions panel for
+that path — no polling, no timeout window. Cancelling with `ESC` fires nothing,
+so the next `MOD+SHIFT+S` always works.
+
+Notes:
+
+- While Run Command points at the plugin, **every** shell screenshot (region
+  *and* fullscreen, however triggered) opens the actions panel. Turn Run
+  Command off to stop that.
+- Without the pipe configured, the plugin falls back to polling the screenshot
+  directory for 60s after each `capture` press.
 
 ## Usage
 
@@ -101,14 +125,15 @@ Summary of every service command:
 | Command | Payload | Action |
 | --- | --- | --- |
 | `capture` | — | Select a region via the built-in tool and save the screenshot |
-| `status` | — | Show whether a capture is in flight (notification) |
+| `captured` | screenshot path | Delivered by the shell's Run Command; opens the actions panel for that file |
+| `status` | — | Show whether a capture is in flight and which delivery mode is active |
 
 ## Notes
 
 - The `capture` IPC opens the action menu automatically when a capture finishes.
-  Pressing it again resets the watch and relaunches the region overlay, so
-  ESC-cancel never leaves a dead window. An untouched watch still times out
-  after 60s.
+  With the pipe configured, delivery is event-driven: pressing it again after
+  an ESC-cancel just works — no dead window. Without the pipe, a 60s poll
+  watch runs instead and a second press restarts it.
 - The Annotate action opens Noctalia's built-in editor
   (`noctalia msg annotate <path>`).
 - The history grid is read from your `[shell.screenshot]` directory; only
