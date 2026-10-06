@@ -322,7 +322,9 @@ render = function()
 
     -- Native scroll container: host-drawn scrollbar and wheel scrolling, same
     -- as the Wallhaven panel. Keyed by page so flipping pages resets to top.
-    ui.scroll({ key = `page-{page}`, flexGrow = 1, gap = 12 }, {
+    -- No flexGrow: the scroll hugs its content so the pager sits directly
+    -- under the grid instead of leaving dead space above it on partial pages.
+    ui.scroll({ key = `page-{page}`, gap = 12 }, {
       shotGrid(),
     }),
 
