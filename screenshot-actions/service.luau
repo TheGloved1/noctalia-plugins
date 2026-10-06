@@ -79,6 +79,9 @@ local function deliverCapture(path, name, mtime, source)
 end
 
 function onIpc(ev, pl)
+  -- Verbose entry log (debug): every dispatch lands here before branching.
+  local plPreview = type(pl) == "string" and pl:sub(1, 160) or ("<" .. type(pl) .. ">")
+  noctalia.log("screenshot-actions: onIpc ev=" .. tostring(ev) .. " " .. plPreview)
   if ev == "status" then
     noctalia.notify(
       "Screenshot service",
