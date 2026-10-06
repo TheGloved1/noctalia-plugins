@@ -10,7 +10,7 @@
 
 id = "gloves/screenshot-actions"
 name = "Screenshot Actions"
-version = "1.4.4"
+version = "1.4.5"
 plugin_api = 26
 author = "gloves"
 license = "MIT"
@@ -89,7 +89,7 @@ height = 480
 id = "history"
 entry = "history.luau"
 width = 920
-height = 780
+height = 740
 keyboard_focus = "exclusive"
 capture_keys = [
   "Up",

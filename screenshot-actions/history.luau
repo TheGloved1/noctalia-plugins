@@ -240,7 +240,18 @@ local function shotTile(shot, index)
     borderWidth = 2
   end
 
-  return ui.column({ key = shot.path, gap = 4, flexGrow = 1, align = "center" }, {
+  return ui.column({
+    key = shot.path,
+    gap = 4,
+    flexGrow = 1,
+    align = "center",
+    onHover = function(state)
+      if state == "true" and cursor ~= index then
+        cursor = index
+        render()
+      end
+    end,
+  }, {
     ui.image({
       width = frameWidth,
       height = frameHeight,
@@ -249,6 +260,12 @@ local function shotTile(shot, index)
       radius = TILE_RADIUS,
       border = border,
       borderWidth = borderWidth,
+      onHover = function(state)
+        if state == "true" and cursor ~= index then
+          cursor = index
+          render()
+        end
+      end,
       onClick = function()
         cursor = index
         openShot(shot)
