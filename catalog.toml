@@ -24,8 +24,8 @@ tags = ["bar", "panel", "utility", "system", "hyprland", "mangowc", "niri"]
 [[plugin]]
 id = "gloves/screenshot-actions"
 name = "Screenshot Actions"
-version = "1.4.2"
-updated_at = 1791284663
+version = "1.4.3"
+updated_at = 1791285305
 added_at = 1787670333
 author = "gloves"
 license = "MIT"
